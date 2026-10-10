@@ -56,7 +56,7 @@
               <p class="quiet-note">The lab manual spells it "Stock's"; the method is named after George Stokes.</p>
             </div>
             <h2 class="sub-h">Learning outcomes</h2>
-            <p class="lede">By the end of this session you should be able to:</p>
+            <p class="lede">By the end of this session, students should be able to:</p>
             <ul class="outcomes">
               <li>Determine the viscosity of a liquid by Stokes' method.</li>
               <li>Explain what factors viscosity depends on.</li>
@@ -94,7 +94,7 @@
               <input type="range" id="c-temp" min="10" max="50" step="1" value="20">
             </div>
             <div class="ctl">
-              <label for="c-eta"><span>Your liquid: viscosity</span> <output id="c-eta-o">5.4 P</output></label>
+              <label for="c-eta"><span>Custom liquid: viscosity</span> <output id="c-eta-o">5.4 P</output></label>
               <input type="range" id="c-eta" min="0" max="1000" step="1" value="683">
             </div>
             <div class="ctl">
@@ -116,7 +116,7 @@
 
         <h2 class="sub-h">What does the fall speed depend on?</h2>
         <div class="factor-grid">
-          <article class="factor"><div class="f-ic" data-ic="temp"></div><h3>Temperature</h3><p>Heating a liquid lowers its viscosity sharply: glycerin at 40 °C is about five times "thinner" than at 20 °C. Note the room temperature when you do the lab.</p></article>
+          <article class="factor"><div class="f-ic" data-ic="temp"></div><h3>Temperature</h3><p>Heating a liquid lowers its viscosity sharply: glycerin at 40 °C is about five times "thinner" than at 20 °C. Record the room temperature during the lab.</p></article>
           <article class="factor"><div class="f-ic" data-ic="liquid"></div><h3>Type of liquid</h3><p>Water ≈ 0.01 P, blood ≈ 0.03–0.04 P, glycerin several poise, honey around 100 P. Stronger forces between molecules mean more internal friction.</p></article>
           <article class="factor"><div class="f-ic" data-ic="size"></div><h3>Sphere size</h3><p>Terminal velocity grows with r², not r. Doubling the radius makes the ball fall four times faster in the same liquid.</p></article>
           <article class="factor"><div class="f-ic" data-ic="density"></div><h3>Sphere density</h3><p>The ball sinks because (ρs − ρL) is positive. A heavier steel ball falls faster than glass; a ball lighter than the liquid would float.</p></article>
@@ -182,7 +182,7 @@
           <p class="ln-quote">"Mark two distant points and measure the distance between them."</p>
           <ul>
             <li><strong>Not too close to the surface.</strong> Just after release the ball is still speeding up. Put X a few centimetres below the surface so the ball has already reached its constant terminal velocity when it passes X.</li>
-            <li><strong>Far apart.</strong> Your reaction time when starting and stopping the watch (about 0.1–0.2 s) is roughly the same whatever D is. A long fall makes t larger, so the same reaction error is a smaller percentage of t.</li>
+            <li><strong>Far apart.</strong> The reaction time when starting and stopping the watch (about 0.1–0.2 s) is roughly the same whatever D is. A long fall makes t larger, so the same reaction error is a smaller percentage of t.</li>
             <li><strong>Not too close to the bottom.</strong> The base of the cylinder slows the ball in the last few centimetres.</li>
           </ul>
         </aside>
@@ -258,7 +258,7 @@
     <section class="view" id="view-observation" data-title="Observation &amp; graph">
       <div class="sheet">
         <h1 class="page-h">Observation &amp; graph</h1>
-        <p class="lede">A real set of graded readings from this lab, used as the worked example.</p>
+        <p class="lede">Example readings for three steel spheres, used as the worked example.</p>
         <div class="obs-top">
           <div class="obs-d">D = <strong>35.5 cm</strong></div>
           <div class="obs-d">ρ<sub>s</sub> = <strong>7.86 g/cm³</strong></div>
@@ -274,7 +274,7 @@
             </tbody>
           </table>
         </div>
-        <p class="note">Example for ball 3: v = 35.5 / 0.67 = 52.99 ≈ 53 cm/s. The lab book wrote r² = 0.0501 for ball 2; 0.225² = 0.0506. The slope uses balls 1 and 3, so the result is unchanged.</p>
+        <p class="note">Example for ball 3: v = 35.5 / 0.67 = 52.99 ≈ 53 cm/s. The slope below uses balls 1 and 3, the two points farthest apart.</p>
 
         <div class="graph-wrap">
           <svg id="obs-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Graph of v against r squared: three points on a straight line with a slope triangle between ball 1 and ball 3"></svg>
@@ -296,8 +296,8 @@
 
         <h2 class="sub-h">Common slips</h2>
         <div class="slips">
-          <div class="slip"><h3>Slope upside down</h3><p>A first attempt wrote the slope as Δx/Δy, with X and Y swapped, and had to cross it out. v is on the y-axis, so S = Δv / Δr², rise over run.</p></div>
-          <div class="slip"><h3>g left in m/s²</h3><p>Putting in g = 9.8 gives 0.054 P. That answer was also crossed out before switching to 980 cm/s², which gives 5.415 P.</p></div>
+          <div class="slip"><h3>Slope upside down</h3><p>Writing the slope as Δx/Δy, with the axes swapped, is an easy mistake. v is on the y-axis, so S = Δv / Δr², rise over run.</p></div>
+          <div class="slip"><h3>g left in m/s²</h3><p>Putting in g = 9.8 gives 0.054 P, 100 times too small. With g = 980 cm/s² the example gives 5.415 P.</p></div>
           <div class="slip"><h3>Squaring the diameter</h3><p>The micrometer gives the diameter. Halve it first: r = d/2, then square. Using d² makes every x value 4 times too big.</p></div>
           <div class="slip"><h3>Reading the slope from table rows only</h3><p>The slope belongs to the best straight line. When the points scatter, choose two points on the drawn line, far apart.</p></div>
         </div>
@@ -308,7 +308,7 @@
     <!-- ============ MCQs ============ -->
     <section class="view" id="view-mcq" data-title="MCQs">
       <div class="sheet">
-        <h1 class="page-h">Check your understanding</h1>
+        <h1 class="page-h">Check understanding</h1>
         <div class="mcq-bar">
           <div class="mcq-score" id="mcq-score">0 correct</div>
           <button type="button" class="btn-quiet" id="mcq-reset">Reset &amp; reshuffle</button>
@@ -396,7 +396,7 @@
               <button type="button" role="radio" aria-checked="false" data-mode="line">Best-fit line</button>
             </div>
             <div class="graph-wrap">
-              <svg id="prac-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Your graph of v against r squared"></svg>
+              <svg id="prac-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Graph of v against r squared for the recorded readings"></svg>
             </div>
             <p class="slope-out" id="slope-out" aria-live="polite">Plot at least two points, then choose two points on the line.</p>
           </div>

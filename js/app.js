@@ -263,7 +263,7 @@
     { key: 'water', name: 'Water', rho: 1.00, fill: 'water', eta: [0.0131, 0.0100, 0.0080, 0.00653, 0.00547] },
     { key: 'gly', name: 'Glycerin', rho: 1.26, fill: 'gly', eta: [39.5, 14.1, 6.12, 2.84, 1.42] },
     { key: 'honey', name: 'Honey', rho: 1.42, fill: 'honey', eta: [600, 100, 30, 10, 4] },
-    { key: 'custom', name: 'Your liquid', rho: 1.26, fill: 'custom', eta: null }
+    { key: 'custom', name: 'Custom liquid', rho: 1.26, fill: 'custom', eta: null }
   ];
   function etaAt(L, T) {
     let i = 0; while (i < TEMPS.length - 2 && T > TEMPS[i + 1]) i++;
@@ -1244,7 +1244,7 @@
       st.rows.sort((a, b) => a.r - b.r);
       st.rowsD = D;
       let s = `Recorded t = ${t.toFixed(2)} s, v = D/t = ${v.toFixed(2)} cm/s${note}.`;
-      if (ideal != null && Math.abs(t - ideal) > 0.05) s += ` Your reaction time changed it by about ${Math.abs(t - ideal).toFixed(2)} s.`;
+      if (ideal != null && Math.abs(t - ideal) > 0.05) s += ` Reaction time changed it by about ${Math.abs(t - ideal).toFixed(2)} s.`;
       $('sw-msg').textContent = s;
       st.pick = []; renderRows(); renderGraph();
     }
@@ -1332,20 +1332,20 @@
     const near = (a, b, tol) => Math.abs(a - b) <= Math.abs(b) * tol;
     $('btn-check').addEventListener('click', () => {
       const S = parseNum($('in-s').value), g = parseNum($('in-g').value), eta = parseNum($('in-eta').value);
-      if (!(S > 0)) { say('bad', 'Enter the slope S from your graph first.'); return; }
+      if (!(S > 0)) { say('bad', 'Enter the slope S from the graph first.'); return; }
       const ref = st.S != null ? st.S : null;
-      if (S < 1 && near(1 / S, ref || LAB.S, 0.05)) { say('nudge', 'Your slope looks upside down (Δr²/Δv). v is on the y-axis, so S = Δv / Δr².'); return; }
-      if (ref != null && !near(S, ref, 0.03)) { say('nudge', `This S does not match your graph (${ref.toFixed(2)} cm⁻¹ s⁻¹). Use the slope you read from the graph.`); return; }
-      if (ref == null && !near(S, LAB.S, 0.03)) { say('nudge', 'Plot your readings and read S from your graph, or use the worked example S = 265.42 cm⁻¹ s⁻¹.'); return; }
+      if (S < 1 && near(1 / S, ref || LAB.S, 0.05)) { say('nudge', 'This slope looks upside down (Δr²/Δv). v is on the y-axis, so S = Δv / Δr².'); return; }
+      if (ref != null && !near(S, ref, 0.03)) { say('nudge', `This S does not match the graph (${ref.toFixed(2)} cm⁻¹ s⁻¹). Use the slope read from the graph.`); return; }
+      if (ref == null && !near(S, LAB.S, 0.03)) { say('nudge', 'Plot the readings and read S from the graph, or use the example slope S = 265.42 cm⁻¹ s⁻¹.'); return; }
       const want = etaFrom(S, G_CGS);
       const gNudge = 'Convert g to CGS: g = 9.8 m/s² × 100 cm/m = <b>980 cm/s²</b>. With 9.8 the answer comes out 100 times too small.';
       if (!isNaN(g) && near(g, 9.8, 0.03)) { say('nudge', gNudge); return; }
-      if (!(eta > 0)) { say('bad', 'Enter your value of η in poise.'); return; }
+      if (!(eta > 0)) { say('bad', 'Enter a value of η in poise.'); return; }
       if (near(eta, want / 100, 0.05)) { say('nudge', gNudge); return; }
-      if (isNaN(g)) { say('nudge', 'Fill in the value of g you used, in cm/s².'); return; }
+      if (isNaN(g)) { say('nudge', 'Fill in the value of g used, in cm/s².'); return; }
       if (!near(g, 980, 0.01)) { say('bad', 'g should be 980 cm/s².'); return; }
-      if (near(eta, want, 0.03)) { say('ok', `✓ Correct. From your slope η = ${want.toFixed(3)} poise (= ${(want / 10).toFixed(4)} Pa·s). The lab book result was 5.415 poise.`); return; }
-      if (near(eta, (2 / 9) * (RHO_S - RHO_L) * G_CGS * S, 0.05)) { say('nudge', 'You multiplied by S. The formula has 1/S: divide by the slope.'); return; }
+      if (near(eta, want, 0.03)) { say('ok', `✓ Correct. From this slope η = ${want.toFixed(3)} poise (= ${(want / 10).toFixed(4)} Pa·s). For comparison, the worked example gives 5.415 poise.`); return; }
+      if (near(eta, (2 / 9) * (RHO_S - RHO_L) * G_CGS * S, 0.05)) { say('nudge', 'That value is η × S. The formula has 1/S: divide by the slope, not multiply.'); return; }
       if (near(eta, (2 / 9) * RHO_S * G_CGS / S, 0.04)) { say('nudge', 'Use the difference of densities: ρs − ρL = 7.86 − 1.26 = 6.6 g/cm³.'); return; }
       say('bad', 'Not yet. Check each step; the guided calculation shows the working.');
     });
@@ -1355,7 +1355,7 @@
       const S = Sin > 0 ? Sin : (st.S != null ? st.S : LAB.S);
       const eta = etaFrom(S, G_CGS);
       g.innerHTML = `
-        <li>Slope from your graph: S = <b>${S.toFixed(2)}</b> cm⁻¹ s⁻¹${Sin > 0 || st.S != null ? '' : ' (worked example)'}</li>
+        <li>Slope from the graph: S = <b>${S.toFixed(2)}</b> cm⁻¹ s⁻¹${Sin > 0 || st.S != null ? '' : ' (worked example)'}</li>
         <li>Density difference: ρ<sub>s</sub> − ρ<sub>L</sub> = 7.86 − 1.26 = <b>6.6</b> g/cm³</li>
         <li class="hi">Convert g to CGS: g = 9.8 m/s² × 100 cm/m = <b>980 cm/s²</b></li>
         <li>Substitute: <span class="eq-line">η = <sup>2</sup>⁄<sub>9</sub> × 6.6 × 980 × <sup>1</sup>⁄<sub>${S.toFixed(2)}</sub> = 1437.33 / ${S.toFixed(2)}</span></li>
