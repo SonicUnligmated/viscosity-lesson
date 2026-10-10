@@ -1136,12 +1136,16 @@
     const mag = { x: PARK[0], y: PARK[1], onTrack: false, drag: false, held: null };
     const gMagEl = el('g', { class: 'magnet pt-hit', style: 'touch-action:none' }, gMag);
     el('rect', { x: -14, y: -MH - 6, width: 28, height: MH * 2 + 12, fill: 'transparent' }, gMagEl);
-    el('rect', { x: -9, y: -MH, width: 18, height: MH, rx: 3, fill: '#c8432f', stroke: '#8d2a1c', 'stroke-width': 1.2 }, gMagEl);
-    el('rect', { x: -9, y: 0, width: 18, height: MH, rx: 3, fill: '#3f6fa0', stroke: '#284a6e', 'stroke-width': 1.2 }, gMagEl);
-    txt(gMagEl, 0, -MH + 18, 'N', { 'font-size': 14, fill: '#fff', 'text-anchor': 'middle', 'font-weight': 700, 'font-family': 'Manrope, sans-serif' });
-    txt(gMagEl, 0, MH - 8, 'S', { 'font-size': 14, fill: '#fff', 'text-anchor': 'middle', 'font-weight': 700, 'font-family': 'Manrope, sans-serif' });
-    const magLabel = txt(gMag, PARK[0], PARK[1] + MH + 30, 'magnet', { 'font-size': 22, fill: '#5d6872', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 600 });
-    function renderMag() { gMagEl.setAttribute('transform', `translate(${mag.x.toFixed(1)} ${mag.y.toFixed(1)})`); magLabel.style.display = mag.x === PARK[0] && mag.y === PARK[1] ? '' : 'none'; }
+    const mdefs = el('defs', null, svg);
+    const mg = el('linearGradient', { id: 'mag-black', x1: 0, x2: 1, y1: 0, y2: 0 }, mdefs);
+    [['0', '#1b1d1f'], ['.3', '#3a3d40'], ['.45', '#2a2c2e'], ['1', '#121314']].forEach(([o, c]) => el('stop', { offset: o, 'stop-color': c }, mg));
+    el('rect', { x: -9, y: -MH, width: 18, height: MH * 2, rx: 3, fill: 'url(#mag-black)', stroke: '#0c0d0e', 'stroke-width': 1.2 }, gMagEl);
+    el('rect', { x: -5.5, y: -MH + 4, width: 2.2, height: MH * 2 - 8, rx: 1.1, fill: '#fff', opacity: .12 }, gMagEl);
+    el('line', { x1: -9, y1: 0, x2: 9, y2: 0, stroke: '#4a4d50', 'stroke-width': .8, opacity: .6 }, gMagEl);
+    txt(gMagEl, 0, -MH + 16, 'N', { 'font-size': 11, fill: '#c9ced3', opacity: .55, 'text-anchor': 'middle', 'font-weight': 600, 'font-family': 'Manrope, sans-serif' });
+    txt(gMagEl, 0, MH - 7, 'S', { 'font-size': 11, fill: '#c9ced3', opacity: .55, 'text-anchor': 'middle', 'font-weight': 600, 'font-family': 'Manrope, sans-serif' });
+    txt(gDish, PARK[0], PARK[1] + MH + 32, 'Magnet', { 'font-size': 22, fill: '#5d6872', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 600 });
+    function renderMag() { gMagEl.setAttribute('transform', `translate(${mag.x.toFixed(1)} ${mag.y.toFixed(1)})`); }
     gMagEl.addEventListener('pointerdown', e => {
       e.preventDefault(); e.stopPropagation();
       const p0 = svgPoint(svg, e), off = mag.y - p0.y;

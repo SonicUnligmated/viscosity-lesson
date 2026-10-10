@@ -34,7 +34,7 @@ body.has-cursor #cursor{display:block}
 #cursor.tool-tweezers .cur-marker,#cursor.tool-tweezers .cur-eraser,#cursor.tool-magnet .cur-marker,#cursor.tool-magnet .cur-eraser{display:none!important}
 #cursor.tool-tweezers .cur-tweezers{display:block;left:-6px;top:-40px}
 #cursor.tool-magnet .cur-magnet{display:block;left:-22px;top:-22px}
-.tw-arm{fill:#aab3bb;stroke:#4a545d;stroke-width:1}.mg-n{fill:#c8432f;stroke:#8d2a1c}.mg-s{fill:#3f6fa0;stroke:#284a6e}
+.tw-arm{fill:#aab3bb;stroke:#4a545d;stroke-width:1}.mg-body{fill:#1f2123;stroke:#0c0d0e}.mg-sheen{fill:#fff;opacity:.18}
 .sphere.pt-hit,.magnet{cursor:grab}
 #cursor.tool-marker .cur-marker{display:block;left:-9px;top:-38px}
 #cursor.tool-eraser .cur-eraser{display:block;left:-16px;top:-34px}
