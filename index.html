@@ -94,8 +94,8 @@
               <input type="range" id="c-temp" min="10" max="50" step="1" value="20">
             </div>
             <div class="ctl">
-              <label for="c-eta"><span>Custom liquid: viscosity</span> <output id="c-eta-o">5.4 P</output></label>
-              <input type="range" id="c-eta" min="0" max="1000" step="1" value="683">
+              <label for="c-eta"><span>Custom liquid: viscosity</span> <output id="c-eta-o">12.0 P</output></label>
+              <input type="range" id="c-eta" min="0" max="1000" step="1" value="770">
             </div>
             <div class="ctl">
               <label for="c-rad"><span>Sphere radius</span> <output id="c-rad-o">0.20 cm</output></label>
@@ -227,14 +227,14 @@
           <div class="g-step-tag">Key step</div>
           <p class="g-eq">g = 9.8 m/s² × 100 cm/m = <strong>980 cm/s²</strong></p>
           <p>Every other quantity is in centimetres, grams and seconds: densities in g/cm³, the slope in cm⁻¹ s⁻¹, and the answer in poise (g cm⁻¹ s⁻¹), a CGS unit. So g must be in cm/s² too.</p>
-          <p class="g-warn">Using 9.8 instead gives η = 0.054 P: an answer <strong>100 times too small</strong>.</p>
+          <p class="g-warn">Using 9.8 instead gives η = 0.12 P: an answer <strong>100 times too small</strong>.</p>
           <p class="g-units">Unit check: (g/cm³)(cm/s²) ÷ (cm⁻¹ s⁻¹) = g cm⁻¹ s⁻¹ = poise ✓</p>
         </div>
 
         <h2 class="sub-h">Try the formula</h2>
         <div class="explorer">
           <div class="ex-controls">
-            <div class="ctl"><label for="f-s"><span>Slope S</span> <output id="f-s-o"></output></label><input type="range" id="f-s" min="150" max="450" step="0.01" value="265.42"></div>
+            <div class="ctl"><label for="f-s"><span>Slope S</span> <output id="f-s-o"></output></label><input type="range" id="f-s" min="50" max="250" step="0.1" value="120"></div>
             <div class="ctl"><label for="f-rs"><span>ρ<sub>s</sub> (sphere)</span> <output id="f-rs-o"></output></label><input type="range" id="f-rs" min="2" max="9" step="0.01" value="7.86"></div>
             <div class="ctl"><label for="f-rl"><span>ρ<sub>L</sub> (liquid)</span> <output id="f-rl-o"></output></label><input type="range" id="f-rl" min="0.8" max="1.5" step="0.01" value="1.26"></div>
             <div class="ctl"><span class="ctl-label">g used</span>
@@ -260,7 +260,7 @@
         <h1 class="page-h">Observation &amp; graph</h1>
         <p class="lede">Example readings for three steel spheres, used as the worked example.</p>
         <div class="obs-top">
-          <div class="obs-d">D = <strong>35.5 cm</strong></div>
+          <div class="obs-d">D = <strong>30.0 cm</strong></div>
           <div class="obs-d">ρ<sub>s</sub> = <strong>7.86 g/cm³</strong></div>
           <div class="obs-d">ρ<sub>L</sub> = <strong>1.26 g/cm³</strong></div>
         </div>
@@ -268,13 +268,13 @@
           <table class="obs">
             <thead><tr><th>Ball no.</th><th>r<span class="u">cm</span></th><th>r²<span class="u">cm²</span></th><th>t<span class="u">s</span></th><th>v = D/t<span class="u">cm/s</span></th></tr></thead>
             <tbody>
-              <tr><td>1</td><td>0.1</td><td>0.01</td><td>1.29</td><td>27.52</td></tr>
-              <tr><td>2</td><td>0.225</td><td>0.0506</td><td>0.94</td><td>37.77</td></tr>
-              <tr><td>3</td><td>0.325</td><td>0.106</td><td>0.67</td><td>53</td></tr>
+              <tr><td>1</td><td>0.20</td><td>0.04</td><td>6.26</td><td>4.79</td></tr>
+              <tr><td>2</td><td>0.25</td><td>0.0625</td><td>4.01</td><td>7.48</td></tr>
+              <tr><td>3</td><td>0.30</td><td>0.09</td><td>2.78</td><td>10.79</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="note">Example for ball 3: v = 35.5 / 0.67 = 52.99 ≈ 53 cm/s. The slope below uses balls 1 and 3, the two points farthest apart.</p>
+        <p class="note">Example for ball 3: v = 30.0 / 2.78 = 10.79 cm/s. The slope below uses balls 1 and 3, the two points farthest apart.</p>
 
         <div class="graph-wrap">
           <svg id="obs-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Graph of v against r squared: three points on a straight line with a slope triangle between ball 1 and ball 3"></svg>
@@ -283,21 +283,21 @@
         <h2 class="sub-h">Calculation</h2>
         <div class="calc">
           <div class="calc-step"><span class="cs-n">1</span><div><strong>Slope</strong> (y = v, x = r²)
-            <span class="eq-line">S = (y₂ − y₁) / (x₂ − x₁) = (53 − 27.52) / (0.106 − 0.01) = 25.48 / 0.096 = <b>265.42 cm⁻¹ s⁻¹</b></span></div></div>
+            <span class="eq-line">S = (y₂ − y₁) / (x₂ − x₁) = (10.79 − 4.79) / (0.09 − 0.04) = 6.00 / 0.05 = <b>120.0 cm⁻¹ s⁻¹</b></span></div></div>
           <div class="calc-step hi"><span class="cs-n">2</span><div><strong>Convert g to CGS</strong>
             <span class="eq-line">g = 9.8 m/s² × 100 = <b>980 cm/s²</b></span></div></div>
           <div class="calc-step"><span class="cs-n">3</span><div><strong>Substitute</strong>
-            <span class="eq-line">η = <sup>2</sup>⁄<sub>9</sub> × (7.86 − 1.26) × 980 × <sup>1</sup>⁄<sub>265.42</sub></span>
-            <span class="eq-line">= <sup>2</sup>⁄<sub>9</sub> × 6.6 × 980 / 265.42 = 1437.33 / 265.42</span></div></div>
+            <span class="eq-line">η = <sup>2</sup>⁄<sub>9</sub> × (7.86 − 1.26) × 980 × <sup>1</sup>⁄<sub>120.0</sub></span>
+            <span class="eq-line">= <sup>2</sup>⁄<sub>9</sub> × 6.6 × 980 / 120.0 = 1437.33 / 120.0</span></div></div>
           <div class="calc-step result"><span class="cs-n">✓</span><div><strong>Result</strong>
-            <span class="eq-line big">Viscosity of the given liquid η = <b>5.415 poise</b></span>
-            <span class="sub">= 0.5415 Pa·s</span></div></div>
+            <span class="eq-line big">Viscosity of the given liquid η = <b>11.98 poise</b></span>
+            <span class="sub">= 1.198 Pa·s</span></div></div>
         </div>
 
         <h2 class="sub-h">Common slips</h2>
         <div class="slips">
           <div class="slip"><h3>Slope upside down</h3><p>Writing the slope as Δx/Δy, with the axes swapped, is an easy mistake. v is on the y-axis, so S = Δv / Δr², rise over run.</p></div>
-          <div class="slip"><h3>g left in m/s²</h3><p>Putting in g = 9.8 gives 0.054 P, 100 times too small. With g = 980 cm/s² the example gives 5.415 P.</p></div>
+          <div class="slip"><h3>g left in m/s²</h3><p>Putting in g = 9.8 gives 0.12 P, 100 times too small. With g = 980 cm/s² the example gives 11.98 P.</p></div>
           <div class="slip"><h3>Squaring the diameter</h3><p>The micrometer gives the diameter. Halve it first: r = d/2, then square. Using d² makes every x value 4 times too big.</p></div>
           <div class="slip"><h3>Reading the slope from table rows only</h3><p>The slope belongs to the best straight line. When the points scatter, choose two points on the drawn line, far apart.</p></div>
         </div>
@@ -341,9 +341,9 @@
             <div class="panel">
               <h2 class="panel-h">Sphere</h2>
               <div class="seg balls" id="ball-pick" role="radiogroup" aria-label="Sphere">
-                <button type="button" role="radio" aria-checked="true" data-r="0.1">Ball 1</button>
-                <button type="button" role="radio" aria-checked="false" data-r="0.225">Ball 2</button>
-                <button type="button" role="radio" aria-checked="false" data-r="0.325">Ball 3</button>
+                <button type="button" role="radio" aria-checked="true" data-r="0.2">Ball 1</button>
+                <button type="button" role="radio" aria-checked="false" data-r="0.25">Ball 2</button>
+                <button type="button" role="radio" aria-checked="false" data-r="0.3">Ball 3</button>
                 <button type="button" role="radio" aria-checked="false" data-r="custom">Custom</button>
               </div>
               <div class="micro">
@@ -351,7 +351,7 @@
                 <div class="micro-read" id="micro-read"></div>
                 <div class="ctl micro-ctl" id="micro-ctl" hidden>
                   <label for="micro-d"><span>Diameter</span> <output id="micro-d-o"></output></label>
-                  <input type="range" id="micro-d" min="1" max="7" step="0.01" value="2">
+                  <input type="range" id="micro-d" min="1" max="7" step="0.01" value="3.5">
                 </div>
               </div>
             </div>

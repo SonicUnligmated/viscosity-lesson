@@ -6,11 +6,15 @@
      1. CONSTANTS + HELPERS
      ===================================================================== */
   const RHO_S = 7.86, RHO_L = 1.26, G_CGS = 980;
-  const LAB = { D: 35.5, balls: [
-    { n: 1, r: 0.1, r2: 0.01, t: 1.29, v: 27.52 },
-    { n: 2, r: 0.225, r2: 0.0506, t: 0.94, v: 37.77 },
-    { n: 3, r: 0.325, r2: 0.106, t: 0.67, v: 53 }
-  ], S: 265.42, eta: 5.415 };
+  /* Example readings: generated from Stokes' law for glycerin with η = 12.0 P (≈ 22 °C),
+     D = 30.0 cm, t = D / v rounded to 0.01 s, v = D / t rounded to 0.01 cm/s.
+     The slope from balls 1 and 3 is 6.00 / 0.05 = 120.0, giving η = 1437.33 / 120.0 = 11.98 P. */
+  const ETA_GLY = 12.0; // poise: the glycerin in the simulated practical
+  const LAB = { D: 30.0, balls: [
+    { n: 1, r: 0.2, r2: 0.04, t: 6.26, v: 4.79 },
+    { n: 2, r: 0.25, r2: 0.0625, t: 4.01, v: 7.48 },
+    { n: 3, r: 0.3, r2: 0.09, t: 2.78, v: 10.79 }
+  ], S: 120.0, eta: 11.98 };
   const etaFrom = (S, g) => (2 / 9) * (RHO_S - RHO_L) * (g == null ? G_CGS : g) / S;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const NS = 'http://www.w3.org/2000/svg';
@@ -280,7 +284,7 @@
   (function fallLab() {
     const box = $('fall-tubes');
     const TOP = 46, BOT = 366, PXCM = 16; // 20 cm of liquid
-    const st = { T: 20, etaC: 5.415, r: 0.2, rs: 7.86, run: null };
+    const st = { T: 20, etaC: 11.98, r: 0.2, rs: 7.86, run: null };
     const tubes = LIQ.map((L, i) => {
       const wrap = document.createElement('div'); wrap.className = 'fall-tube';
       const svg = el('svg', { viewBox: '0 0 120 390', role: 'img', 'aria-label': L.name + ' tube' });
@@ -513,7 +517,7 @@
         el('path', { d: 'M220 112 V186', stroke: '#9b5a08', 'stroke-width': 1.5, 'stroke-dasharray': '2 5' }, svg);
         el('circle', { cx: 360, cy: 210, r: 54, fill: '#20262b' }, svg);
         el('rect', { x: 352, y: 144, width: 16, height: 14, rx: 3, fill: '#5d6872' }, svg);
-        txt(svg, 360, 220, '0.67', { 'font-size': 30, fill: '#ffd77a', 'text-anchor': 'middle', 'font-family': 'Manrope, sans-serif', 'font-weight': 700 });
+        txt(svg, 360, 220, '2.78', { 'font-size': 30, fill: '#ffd77a', 'text-anchor': 'middle', 'font-family': 'Manrope, sans-serif', 'font-weight': 700 });
         txt(svg, 360, 244, 's', { 'font-size': 16, fill: '#c9a65a', 'text-anchor': 'middle', 'font-family': 'Manrope, sans-serif' });
         txt(svg, 20, 100, 'start ▸', Object.assign({ 'font-size': 26, fill: '#3e7d4b' }, HAND));
         txt(svg, 20, 320, 'stop ■', Object.assign({ 'font-size': 26, fill: '#b4442c' }, HAND));
@@ -538,13 +542,13 @@
           [b.n, b.r, b.r2, b.t, b.v].forEach((v, i) => txt(svg, cols[i], y, String(v), Object.assign({ 'font-size': 26, fill: i === 2 || i === 4 ? '#2f6f8f' : '#26313b', 'text-anchor': 'middle' }, HAND)));
         });
         txt(svg, 230, 310, 'r² = r × r', Object.assign({ 'font-size': 28, fill: '#9b5a08', 'text-anchor': 'middle' }, HAND));
-        txt(svg, 230, 346, 'v = 35.5 / 0.67 = 53 cm/s', Object.assign({ 'font-size': 28, fill: '#9b5a08', 'text-anchor': 'middle' }, HAND));
+        txt(svg, 230, 346, 'v = 30.0 / 2.78 = 10.79 cm/s', Object.assign({ 'font-size': 28, fill: '#9b5a08', 'text-anchor': 'middle' }, HAND));
         return svg;
       },
       function s8() {
         const svg = el('svg', { viewBox: '0 0 760 520', role: 'img' });
         const G = graphBase(svg, { small: true });
-        G.line(svg, 0.004, 0.13);
+        G.line(svg, 0.002, 0.13);
         LAB.balls.forEach(b => G.pt(svg, b.r2, b.v));
         return svg;
       },
@@ -553,8 +557,8 @@
         txt(svg, 230, 110, 'η = ²⁄₉ (ρs − ρL) g × 1/S', { 'font-size': 30, fill: '#26313b', 'text-anchor': 'middle', 'font-family': 'Fraunces, serif' });
         el('rect', { x: 70, y: 150, width: 320, height: 66, rx: 14, fill: '#fde9bb', stroke: '#d4951f', 'stroke-width': 2 }, svg);
         txt(svg, 230, 194, 'g = 980 cm/s²', { 'font-size': 30, fill: '#7a4405', 'text-anchor': 'middle', 'font-family': 'Fraunces, serif', 'font-weight': 600 });
-        txt(svg, 230, 280, '= ²⁄₉ × 6.6 × 980 / 265.42', Object.assign({ 'font-size': 30, fill: '#2f6f8f', 'text-anchor': 'middle' }, HAND));
-        txt(svg, 230, 334, 'η = 5.415 poise', Object.assign({ 'font-size': 40, fill: '#3e7d4b', 'text-anchor': 'middle', 'font-weight': 700 }, HAND));
+        txt(svg, 230, 280, '= ²⁄₉ × 6.6 × 980 / 120.0', Object.assign({ 'font-size': 30, fill: '#2f6f8f', 'text-anchor': 'middle' }, HAND));
+        txt(svg, 230, 334, 'η = 11.98 poise', Object.assign({ 'font-size': 40, fill: '#3e7d4b', 'text-anchor': 'middle', 'font-weight': 700 }, HAND));
         return svg;
       }
     ];
@@ -570,7 +574,7 @@
   /* =====================================================================
      9. GRAPH PAPER — v (y) against r² (x)
      ===================================================================== */
-  const GX = { x0: 112, x1: 728, y0: 62, y1: 440, xmax: 0.14, ymax: 60 };
+  const GX = { x0: 112, x1: 728, y0: 62, y1: 440, xmax: 0.14, ymax: 16 };
   function graphBase(svg, opts) {
     opts = opts || {};
     svg.innerHTML = '';
@@ -583,19 +587,19 @@
     const grid = el('g', null, svg);
     el('rect', { x: GX.x0, y: GX.y0, width: GX.x1 - GX.x0, height: GX.y1 - GX.y0, fill: '#fffaf0' }, grid);
     for (let i = 0; i <= 56; i++) { const x = X(i * 0.0025); el('line', { x1: x, y1: GX.y0, x2: x, y2: GX.y1, stroke: i % 4 ? '#f1e3c2' : '#e2c98f', 'stroke-width': i % 4 ? .7 : 1.1 }, grid); }
-    for (let j = 0; j <= 30; j++) { const y = Y(j * 2); el('line', { x1: GX.x0, y1: y, x2: GX.x1, y2: y, stroke: j % 5 ? '#f1e3c2' : '#e2c98f', 'stroke-width': j % 5 ? .7 : 1.1 }, grid); }
+    for (let j = 0; j <= 32; j++) { const y = Y(j * 0.5); el('line', { x1: GX.x0, y1: y, x2: GX.x1, y2: y, stroke: j % 4 ? '#f1e3c2' : '#e2c98f', 'stroke-width': j % 4 ? .7 : 1.1 }, grid); }
     el('line', { x1: GX.x0, y1: GX.y1, x2: GX.x1 + 14, y2: GX.y1, stroke: '#4a4237', 'stroke-width': 2, 'marker-end': `url(#${svg.id}-ax)` }, svg);
     el('line', { x1: GX.x0, y1: GX.y1, x2: GX.x0, y2: GX.y0 - 14, stroke: '#4a4237', 'stroke-width': 2, 'marker-end': `url(#${svg.id}-ax)` }, svg);
     const tl = el('g', { fill: '#4a4237', 'font-size': 17, 'font-family': 'Manrope, sans-serif' }, svg);
     for (let i = 0; i <= 7; i++) { const v = i * 0.02; txt(tl, X(v), GX.y1 + 26, i ? v.toFixed(2) : '0', { 'text-anchor': 'middle' }); el('line', { x1: X(v), y1: GX.y1, x2: X(v), y2: GX.y1 + 6, stroke: '#4a4237' }, svg); }
-    for (let j = 1; j <= 6; j++) { const v = j * 10; txt(tl, GX.x0 - 12, Y(v) + 6, String(v), { 'text-anchor': 'end' }); el('line', { x1: GX.x0 - 6, y1: Y(v), x2: GX.x0, y2: Y(v), stroke: '#4a4237' }, svg); }
+    for (let j = 1; j <= 8; j++) { const v = j * 2; txt(tl, GX.x0 - 12, Y(v) + 6, String(v), { 'text-anchor': 'end' }); el('line', { x1: GX.x0 - 6, y1: Y(v), x2: GX.x0, y2: Y(v), stroke: '#4a4237' }, svg); }
     txt(svg, GX.x0 - 6, 36, 'v (cm/s)', { class: 'hand', 'font-size': 34, fill: '#2f6f8f', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 700 });
     txt(svg, GX.x1 + 10, GX.y1 + 64, 'r² (cm²) →', { class: 'hand', 'font-size': 34, fill: '#2f6f8f', 'text-anchor': 'end', 'font-family': 'Caveat, cursive', 'font-weight': 700 });
     const layers = { line: el('g', null, svg), tri: el('g', null, svg), pts: el('g', null, svg), top: el('g', null, svg) };
     return {
       X, Y, inv, layers,
       line(parent, xa, xb, S, c) {
-        S = S == null ? LAB.S : S; c = c == null ? 27.52 - LAB.S * 0.01 : c;
+        S = S == null ? LAB.S : S; c = c == null ? 0 : c;
         return el('line', { x1: X(xa), y1: Y(S * xa + c), x2: X(xb), y2: Y(S * xb + c), stroke: '#2f6f8f', 'stroke-width': 2.4, 'stroke-linecap': 'round' }, parent);
       },
       pt(parent, x, y, attrs) {
@@ -663,8 +667,8 @@
     const svg = $('obs-graph');
     const G = graphBase(svg);
     G.line(G.layers.line, 0.002, 0.128);
-    slopeTriangle(G, G.layers.tri, [0.01, 27.52], [0.106, 53], { x: G.X(0.004), y: G.Y(55), s: 'S = 25.48 / 0.096 = 265.42' });
-    const LP = [[-4, 40, 'start'], [-14, -14, 'end'], [14, 30, 'start']];
+    slopeTriangle(G, G.layers.tri, [0.04, 4.79], [0.09, 10.79], { x: G.X(0.004), y: G.Y(14.6), s: 'S = 6.00 / 0.05 = 120.0' });
+    const LP = [[-16, 8, 'end'], [-14, -14, 'end'], [14, 30, 'start']];
     LAB.balls.forEach((b, i) => {
       G.pt(G.layers.pts, b.r2, b.v);
       txt(G.layers.top, G.X(b.r2) + LP[i][0], G.Y(b.v) + LP[i][1], `(${b.r2}, ${b.v})`, { 'font-size': 25, fill: '#4a4237', 'font-family': 'Caveat, cursive', 'font-weight': 600, 'text-anchor': LP[i][2] });
@@ -682,7 +686,7 @@
     { q: 'What is the CGS unit of the coefficient of viscosity?', a: 'Poise', o: ['Pascal', 'Newton', 'Joule'],
       hint: 'It is named after Poiseuille.', ex: '1 poise = 1 g cm⁻¹ s⁻¹ = 0.1 Pa·s.' },
     { q: 'How many Pa·s is 1 poise?', a: '0.1 Pa·s', o: ['10 Pa·s', '1 Pa·s', '100 Pa·s'],
-      hint: 'The SI unit is the larger one.', ex: '1 P = 0.1 Pa·s, so 5.415 P = 0.5415 Pa·s.' },
+      hint: 'The SI unit is the larger one.', ex: '1 P = 0.1 Pa·s, so 11.98 P = 1.198 Pa·s.' },
     { q: 'When the falling sphere reaches terminal velocity…', a: 'the forces on it balance and it moves at constant speed', o: ['it stops moving', 'it keeps speeding up at g', 'the drag force becomes zero'],
       hint: 'Terminal velocity means no further change in speed.', ex: 'Weight = upthrust + viscous drag, so the net force is zero and the speed is constant.' },
     { q: "According to Stokes' law, the viscous drag on a sphere of radius r moving at speed v is…", a: '6πηrv', o: ['4/3 πr³ηv', '6πηr²v', 'ηv / r'],
@@ -695,12 +699,12 @@
       hint: 'Rise over run: y change over x change.', ex: 'S = (v₂ − v₁)/(r₂² − r₁²). Swapping them (Δx/Δy) is a common slip.' },
     { q: 'In the formula η = (2/9)(ρs − ρL) g (1/S), what value of g should be used?', a: '980 cm/s²', o: ['9.8 m/s²', '9.8 cm/s²', '98 cm/s²'],
       hint: 'All other quantities are in cm, g and s.', ex: 'g = 9.8 m/s² × 100 cm/m = 980 cm/s², so the answer comes out in poise.' },
-    { q: 'If g = 9.8 is used instead of 980 in the worked example, η comes out as…', a: '0.054 P, 100 times too small', o: ['541.5 P, 100 times too large', '5.415 P, unchanged', '0.5415 P, 10 times too small'],
-      hint: '9.8 is 980 divided by 100.', ex: 'η is proportional to g, so using 9.8 instead of 980 gives 5.415 / 100 ≈ 0.054 P.' },
-    { q: 'In the worked example, D = 35.5 cm and ball 3 took 0.67 s. Its velocity is…', a: '53 cm/s', o: ['23.8 cm/s', '0.019 cm/s', '35.5 cm/s'],
-      hint: 'v = D / t.', ex: 'v = 35.5 / 0.67 = 52.99 ≈ 53 cm/s.' },
-    { q: 'A sphere has diameter 4.50 mm. What is r² in cm²?', a: '0.0506 cm²', o: ['0.2025 cm²', '0.506 cm²', '20.25 cm²'],
-      hint: 'Halve the diameter, change to cm, then square.', ex: 'd = 0.45 cm, so r = 0.225 cm and r² = 0.0506 cm².' },
+    { q: 'If g = 9.8 is used instead of 980 in the worked example, η comes out as…', a: '0.12 P, 100 times too small', o: ['1198 P, 100 times too large', '11.98 P, unchanged', '1.198 P, 10 times too small'],
+      hint: '9.8 is 980 divided by 100.', ex: 'η is proportional to g, so using 9.8 instead of 980 gives 11.98 / 100 ≈ 0.12 P.' },
+    { q: 'In the worked example, D = 30.0 cm and ball 3 took 2.78 s. Its velocity is…', a: '10.79 cm/s', o: ['83.4 cm/s', '0.093 cm/s', '30.0 cm/s'],
+      hint: 'v = D / t.', ex: 'v = 30.0 / 2.78 = 10.79 cm/s.' },
+    { q: 'A sphere has diameter 5.00 mm. What is r² in cm²?', a: '0.0625 cm²', o: ['0.25 cm²', '0.625 cm²', '6.25 cm²'],
+      hint: 'Halve the diameter, change to cm, then square.', ex: 'd = 0.50 cm, so r = 0.25 cm and r² = 0.0625 cm².' },
     { q: 'Why is the upper mark X placed some distance below the liquid surface?', a: 'So the sphere has already reached terminal velocity before it is timed', o: ['So the marker ink does not touch the glycerin', 'Because glycerin is denser near the top', 'To make the measured time shorter'],
       hint: 'What is the sphere doing just after release?', ex: 'Just after release the sphere is still accelerating. By X it should be moving at constant speed.' },
     { q: 'Why should the two marks X and Y be far apart?', a: 'A longer time makes the reaction-time error a smaller percentage', o: ['The sphere slows down between them', 'It makes the glycerin less viscous', 'So the sphere hits the bottom sooner'],
@@ -757,14 +761,8 @@
      13. PRACTICAL
      ===================================================================== */
   (function practical() {
-    /* ---- measured-velocity model (cm/s) against r² (cm²) ---- */
-    const VP = [[0.01, 27.52], [0.050625, 37.77], [0.105625, 53.0]];
-    function vModel(r) {
-      const x = r * r;
-      let i = x < VP[1][0] ? 0 : 1;
-      const [x0, y0] = VP[i], [x1, y1] = VP[i + 1];
-      return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
-    }
+    /* ---- terminal velocity (cm/s) from Stokes' law: v = (2/9)(ρs − ρL) g r² / η ---- */
+    function vModel(r) { return (2 / 9) * (RHO_S - RHO_L) * G_CGS * r * r / ETA_GLY; }
     const TAU = 0.03;              // s: settling time to terminal velocity
     const SURFACE = 52, TOPCM = 56, PX = 12.8, YB = 742;
     const TX0 = 108, TX1 = 228;    // inner glass edges
@@ -773,7 +771,7 @@
     const cmOf = y => (YB - y) / PX;
 
     const svg = $('tube-svg');
-    const st = { tool: null, marks: [], r: 0.1, ball: 1, mode: 'auto', run: null, rows: [], pick: [], line: null, slopeMode: 'pick', S: null, autoFilledS: false, swManual: { on: false, t0: 0, val: 0, started: false, stopped: false } };
+    const st = { tool: null, marks: [], r: 0.2, ball: 1, mode: 'auto', run: null, rows: [], pick: [], line: null, slopeMode: 'pick', S: null, autoFilledS: false, swManual: { on: false, t0: 0, val: 0, started: false, stopped: false } };
     let seed = 1;
 
     /* ---- tube drawing ---- */
@@ -1291,7 +1289,7 @@
         if (Math.abs(b.r2 - a.r2) < 1e-6) { setS(null, 'Those two points have the same r². Pick two different spheres.'); return; }
         const S = (b.v - a.v) / (b.r2 - a.r2);
         const c = a.v - S * a.r2;
-        G.line(G.layers.line, 0.002, Math.min(0.138, (59.5 - c) / S), S, c);
+        G.line(G.layers.line, 0.002, Math.min(0.138, (15.7 - c) / S), S, c);
         slopeTriangle(G, G.layers.tri, [a.r2, a.v], [b.r2, b.v]);
         setS(S, `S = (v₂ − v₁) / (r₂² − r₁²) = (${b.v.toFixed(2)} − ${a.v.toFixed(2)}) / (${b.r2.toFixed(4)} − ${a.r2.toFixed(4)}) = <b>${S.toFixed(2)} cm⁻¹ s⁻¹</b>`);
       } else {
@@ -1300,20 +1298,20 @@
         if (!st.line) {
           const n = pts.length, mx = pts.reduce((s, p) => s + p.r2, 0) / n, my = pts.reduce((s, p) => s + p.v, 0) / n;
           let sxy = 0, sxx = 0; pts.forEach(p => { sxy += (p.r2 - mx) * (p.v - my); sxx += (p.r2 - mx) ** 2; });
-          const S0 = sxx > 0 ? sxy / sxx : 250, c0 = my - S0 * mx;
+          const S0 = sxx > 0 ? sxy / sxx : 120, c0 = my - S0 * mx;
           const xa = 0.02, xb = 0.12;
-          st.line = [[xa, clamp(S0 * xa + c0 + 1.5, 2, 58)], [xb, clamp(S0 * xb + c0 - 1.5, 2, 58)]];
+          st.line = [[xa, clamp(S0 * xa + c0 + 0.4, 0.5, 15.5)], [xb, clamp(S0 * xb + c0 - 0.4, 0.5, 15.5)]];
         }
         const [A, B] = st.line;
         const S = (B[1] - A[1]) / (B[0] - A[0]), c = A[1] - S * A[0];
-        const lo = Math.max(0.002, S > 0 ? (1 - c) / S : 0.002), hi = Math.min(0.138, S > 0 ? (59.5 - c) / S : 0.138);
+        const lo = Math.max(0.002, S > 0 ? (0.25 - c) / S : 0.002), hi = Math.min(0.138, S > 0 ? (15.7 - c) / S : 0.138);
         G.line(G.layers.line, Math.min(lo, A[0]), Math.max(hi, B[0]), S, c);
         slopeTriangle(G, G.layers.tri, A, B);
         st.line.forEach((P, k) => {
           const h = el('circle', { cx: G.X(P[0]), cy: G.Y(P[1]), r: 11, fill: '#2f6f8f', stroke: '#fff', 'stroke-width': 3, class: 'pt-hit', style: 'touch-action:none' }, G.layers.top);
           h.addEventListener('pointerdown', e => {
             e.preventDefault();
-            const mv = ev => { const q = svgPoint(gsvg, ev); const [x, y] = G.inv(q.x, q.y); const nx = clamp(x, 0.004, 0.136); if (Math.abs(nx - st.line[1 - k][0]) < 0.01) return; st.line[k] = [nx, clamp(y, 1, 59)]; scheduleRender(); };
+            const mv = ev => { const q = svgPoint(gsvg, ev); const [x, y] = G.inv(q.x, q.y); const nx = clamp(x, 0.004, 0.136); if (Math.abs(nx - st.line[1 - k][0]) < 0.01) return; st.line[k] = [nx, clamp(y, 0.25, 15.75)]; scheduleRender(); };
             const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); renderGraph(); };
             window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
           });
@@ -1336,7 +1334,7 @@
       const ref = st.S != null ? st.S : null;
       if (S < 1 && near(1 / S, ref || LAB.S, 0.05)) { say('nudge', 'This slope looks upside down (Δr²/Δv). v is on the y-axis, so S = Δv / Δr².'); return; }
       if (ref != null && !near(S, ref, 0.03)) { say('nudge', `This S does not match the graph (${ref.toFixed(2)} cm⁻¹ s⁻¹). Use the slope read from the graph.`); return; }
-      if (ref == null && !near(S, LAB.S, 0.03)) { say('nudge', 'Plot the readings and read S from the graph, or use the example slope S = 265.42 cm⁻¹ s⁻¹.'); return; }
+      if (ref == null && !near(S, LAB.S, 0.03)) { say('nudge', 'Plot the readings and read S from the graph, or use the example slope S = 120.0 cm⁻¹ s⁻¹.'); return; }
       const want = etaFrom(S, G_CGS);
       const gNudge = 'Convert g to CGS: g = 9.8 m/s² × 100 cm/m = <b>980 cm/s²</b>. With 9.8 the answer comes out 100 times too small.';
       if (!isNaN(g) && near(g, 9.8, 0.03)) { say('nudge', gNudge); return; }
@@ -1344,7 +1342,7 @@
       if (near(eta, want / 100, 0.05)) { say('nudge', gNudge); return; }
       if (isNaN(g)) { say('nudge', 'Fill in the value of g used, in cm/s².'); return; }
       if (!near(g, 980, 0.01)) { say('bad', 'g should be 980 cm/s².'); return; }
-      if (near(eta, want, 0.03)) { say('ok', `✓ Correct. From this slope η = ${want.toFixed(3)} poise (= ${(want / 10).toFixed(4)} Pa·s). For comparison, the worked example gives 5.415 poise.`); return; }
+      if (near(eta, want, 0.03)) { say('ok', `✓ Correct. From this slope η = ${want.toFixed(3)} poise (= ${(want / 10).toFixed(4)} Pa·s). For comparison, the worked example gives 11.98 poise.`); return; }
       if (near(eta, (2 / 9) * (RHO_S - RHO_L) * G_CGS * S, 0.05)) { say('nudge', 'That value is η × S. The formula has 1/S: divide by the slope, not multiply.'); return; }
       if (near(eta, (2 / 9) * RHO_S * G_CGS / S, 0.04)) { say('nudge', 'Use the difference of densities: ρs − ρL = 7.86 − 1.26 = 6.6 g/cm³.'); return; }
       say('bad', 'Not yet. Check each step; the guided calculation shows the working.');
@@ -1374,7 +1372,7 @@
       st.line = null; st.pick = [];
     });
 
-    drawMicro(2); $('micro-d-o').textContent = '2.00 mm'; resetSpheres();
+    drawMicro(4); $('micro-d-o').textContent = '4.00 mm'; resetSpheres();
     renderMarks(); renderGraph();
     window.__prac = { st, getXY, vModel, renderMarks, PX, yOf, TX0, TX1, SURFACE, YB, spheres, mag, DISH, MX, PARK };
   })();
