@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viscosity · Stokes' Method · Lab 5</title>
+<meta name="description" content="Lab 5 — Coefficient of viscosity of glycerin by Stokes' method (falling-ball viscometer). Concept, medical perspectives, method, formula, worked observation, MCQs and a simulated practical.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23fbf5e6'/%3E%3Cpath d='M16 4C16 4 7 15 7 20a9 9 0 0 0 18 0C25 15 16 4 16 4Z' fill='%23d4951f'/%3E%3Cellipse cx='12.5' cy='19' rx='2' ry='3' fill='%23fff3d0' opacity='.7'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<canvas id="bg-flow" aria-hidden="true"></canvas>
+
+<div id="cursor" aria-hidden="true">
+  <svg class="cur-drop" viewBox="0 0 28 34" width="28" height="34"><path d="M5 3 C5 3 1 11 1 14.5 A4.2 4.2 0 0 0 9.4 14.5 C9.4 11 5 3 5 3Z" transform="translate(0 0)"/><ellipse cx="3.7" cy="14" rx="1" ry="1.6"/></svg>
+  <svg class="cur-marker" viewBox="0 0 44 44" width="44" height="44"><g transform="rotate(-38 22 22)"><path d="M20 6h6v6h-6z" class="mk-cap"/><path d="M19 12h8v20h-8z" class="mk-body"/><path d="M19 30h8l-2 6h-4z" class="mk-collar"/><path d="M21.5 36h3l-1.5 5z" class="mk-tip"/></g></svg>
+  <svg class="cur-eraser" viewBox="0 0 44 44" width="44" height="44"><g transform="rotate(-30 22 22)"><rect x="15" y="8" width="14" height="22" rx="3" class="er-body"/><rect x="15" y="26" width="14" height="10" rx="2" class="er-felt"/></g></svg>
+</div>
+
+<div class="app">
+  <aside class="rail" aria-label="Lesson progress">
+    <div class="rail-brand">
+      <div class="rail-eyebrow">Physics lab · 5</div>
+      <div class="rail-title">Viscosity</div>
+      <div class="rail-sub">Stokes' method</div>
+    </div>
+    <div class="rail-body">
+      <div class="rail-tube" aria-hidden="true">
+        <div class="rail-tube-glass"><div class="rail-honey" id="rail-honey"><span class="rail-drip"></span></div></div>
+      </div>
+      <nav class="rail-nav" id="rail-nav" aria-label="Sections"></nav>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="stage-top">
+      <button type="button" class="btn-prev" id="btn-prev">← Prev</button>
+    </div>
+
+    <!-- ============ AIM & OUTCOMES ============ -->
+    <section class="view" id="view-aim" data-title="Aim &amp; outcomes">
+      <div class="sheet">
+        <p class="disclaimer">This lesson is an AI-assisted, low-friction introduction. It is not scientific-grade material; its purpose is to build a working framework before the lecture and the lab session.</p>
+        <p class="eyebrow">Physics lab 5 · Falling-ball viscometer</p>
+        <h1 class="page-h">Viscosity of Glycerin by Stokes' Method</h1>
+        <div class="aim-grid">
+          <div>
+            <div class="aim-block">
+              <div class="aim-label">Aim</div>
+              <p class="aim-text">To determine the coefficient of viscosity of glycerin by Stokes' method.</p>
+              <p class="quiet-note">The lab manual spells it "Stock's"; the method is named after George Stokes.</p>
+            </div>
+            <h2 class="sub-h">Learning outcomes</h2>
+            <p class="lede">By the end of this session you should be able to:</p>
+            <ul class="outcomes">
+              <li>Determine the viscosity of a liquid by Stokes' method.</li>
+              <li>Explain what factors viscosity depends on.</li>
+              <li>Represent data graphically and analyze experimental error.</li>
+            </ul>
+          </div>
+          <figure class="aim-figure">
+            <svg id="aim-hero" viewBox="0 0 300 420" role="img" aria-label="A steel ball sinking at constant speed through a tall cylinder of glycerin between two marks X and Y"></svg>
+          </figure>
+        </div>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ CONCEPT ============ -->
+    <section class="view" id="view-concept" data-title="What is viscosity?">
+      <div class="sheet">
+        <h1 class="page-h">What is viscosity?</h1>
+        <p class="lede"><strong>Viscosity</strong> is a liquid's internal friction: its resistance to flowing. When a liquid flows, neighbouring layers slide over each other, and each layer drags on the next. Honey and glycerin resist this sliding strongly; water hardly at all.</p>
+        <div class="layers-row">
+          <svg id="layers-svg" viewBox="0 0 520 200" role="img" aria-label="Layers of liquid sliding over each other: the top layer moves fastest, the layer at the fixed surface does not move"></svg>
+          <div class="layers-text">
+            <p>The <strong>coefficient of viscosity η</strong> (eta) is the tangential force per unit area needed to keep a unit velocity gradient between layers:</p>
+            <p class="eq-inline">F = η A (dv / dx)</p>
+            <p>CGS unit: <strong>poise (P)</strong> = g cm⁻¹ s⁻¹.<br>SI unit: Pa·s. &nbsp;1 poise = 0.1 Pa·s.</p>
+          </div>
+        </div>
+
+        <h2 class="sub-h">Drop a ball into four liquids</h2>
+        <div class="fall-lab">
+          <div class="fall-tubes" id="fall-tubes"></div>
+          <div class="fall-controls">
+            <div class="ctl">
+              <label for="c-temp"><span>Temperature</span> <output id="c-temp-o">20 °C</output></label>
+              <input type="range" id="c-temp" min="10" max="50" step="1" value="20">
+            </div>
+            <div class="ctl">
+              <label for="c-eta"><span>Your liquid: viscosity</span> <output id="c-eta-o">5.4 P</output></label>
+              <input type="range" id="c-eta" min="0" max="1000" step="1" value="683">
+            </div>
+            <div class="ctl">
+              <label for="c-rad"><span>Sphere radius</span> <output id="c-rad-o">0.20 cm</output></label>
+              <input type="range" id="c-rad" min="0.05" max="0.35" step="0.005" value="0.2">
+            </div>
+            <div class="ctl">
+              <span class="ctl-label">Sphere material</span>
+              <div class="seg" id="c-mat" role="radiogroup" aria-label="Sphere material">
+                <button type="button" role="radio" aria-checked="true" data-rho="7.86">Steel 7.86</button>
+                <button type="button" role="radio" aria-checked="false" data-rho="2.50">Glass 2.50</button>
+                <button type="button" role="radio" aria-checked="false" data-rho="1.40">Plastic 1.40</button>
+              </div>
+            </div>
+            <button type="button" class="btn-honey" id="c-drop">Drop the balls</button>
+          </div>
+        </div>
+        <p class="note">The temperature slider changes water, glycerin and honey; the fourth tube follows its own viscosity slider. Densities in g/cm³.</p>
+
+        <h2 class="sub-h">What does the fall speed depend on?</h2>
+        <div class="factor-grid">
+          <article class="factor"><div class="f-ic" data-ic="temp"></div><h3>Temperature</h3><p>Heating a liquid lowers its viscosity sharply: glycerin at 40 °C is about five times "thinner" than at 20 °C. Note the room temperature when you do the lab.</p></article>
+          <article class="factor"><div class="f-ic" data-ic="liquid"></div><h3>Type of liquid</h3><p>Water ≈ 0.01 P, blood ≈ 0.03–0.04 P, glycerin several poise, honey around 100 P. Stronger forces between molecules mean more internal friction.</p></article>
+          <article class="factor"><div class="f-ic" data-ic="size"></div><h3>Sphere size</h3><p>Terminal velocity grows with r², not r. Doubling the radius makes the ball fall four times faster in the same liquid.</p></article>
+          <article class="factor"><div class="f-ic" data-ic="density"></div><h3>Sphere density</h3><p>The ball sinks because (ρs − ρL) is positive. A heavier steel ball falls faster than glass; a ball lighter than the liquid would float.</p></article>
+        </div>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ MEDICAL ============ -->
+    <section class="view" id="view-medical" data-title="Medical perspectives">
+      <div class="sheet">
+        <h1 class="page-h">Medical perspectives</h1>
+        <p class="lede">Blood, plasma, IV fluids and many injectable drugs are liquids whose flow is governed by viscosity. Poiseuille's law shows how strongly it matters: the resistance of a vessel or a tube is <strong>R = 8ηL / πr⁴</strong>, directly proportional to η.</p>
+        <div class="med-grid">
+          <article class="med-card">
+            <div class="med-visual"><svg viewBox="0 0 320 190" id="med-blood" role="img" aria-label="Two blood vessels: one with normal blood, one crowded with red cells and higher viscosity"></svg></div>
+            <h3>Blood viscosity &amp; hypertension</h3>
+            <p>Blood is about 3–4 times as viscous as water, mostly because of its red cells (haematocrit). In conditions such as polycythaemia or dehydration the blood thickens; the heart must push harder to keep the same flow, which raises blood pressure and its workload.</p>
+          </article>
+          <article class="med-card">
+            <div class="med-visual"><svg viewBox="0 0 320 190" id="med-iv" role="img" aria-label="Two IV bags: saline drips quickly, a thicker fluid drips slowly"></svg></div>
+            <h3>IV fluids &amp; drug delivery</h3>
+            <p>A thicker fluid flows more slowly through the same cannula: blood products and albumin run slower than saline. Flow rates, cannula size and the force needed to push a viscous drug through a syringe all depend on η, which is why infusion pumps are set carefully.</p>
+          </article>
+          <article class="med-card">
+            <div class="med-visual"><svg viewBox="0 0 320 190" id="med-circ" role="img" aria-label="An artery branching into capillaries, with a curved velocity profile showing faster flow in the centre"></svg></div>
+            <h3>Understanding circulation</h3>
+            <p>Blood flows in smooth layers (laminar flow): fastest in the centre of a vessel, slowest at the wall. Blood is non-Newtonian: its effective viscosity changes with flow speed and vessel size, so it behaves differently in arteries than in tiny capillaries.</p>
+          </article>
+        </div>
+        <figure class="manual-fig">
+          <img src="assets/medical-infographic.jpg" alt="Lab manual infographic: blood viscosity and hypertension, IV fluids and drug delivery, circulation and microcirculation" width="974" height="768" loading="lazy">
+          <figcaption>From the lab manual: fluid dynamics in medicine.</figcaption>
+        </figure>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ METHOD ============ -->
+    <section class="view" id="view-method" data-title="Method">
+      <div class="sheet wide">
+        <h1 class="page-h">Method</h1>
+        <p class="lede">Apparatus: a tall glass cylinder of glycerin, 3–4 steel spheres, a micrometer, a metre rule, a marker and a stopwatch.</p>
+        <div class="method-wrap">
+          <ol class="steps" id="steps">
+            <li><button type="button" class="step" aria-pressed="true"><span class="sn">1</span><span>Take 3 to 4 spheres and measure their diameters accurately with a micrometer.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">2</span><span>Fill the cylinder with glycerin.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">3</span><span>Mark two horizontal lines X and Y on the vertical cylinder and measure the distance D between them.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">4</span><span>Release one sphere at the surface of the liquid in the cylinder.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">5</span><span>Measure the time t for the sphere to travel from X to Y.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">6</span><span>Repeat steps 4 and 5 for all spheres.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">7</span><span>Calculate the radius squared (r²) and the velocity v = D / t of each sphere.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">8</span><span>Plot v (y-axis) against r² (x-axis), draw the best straight line and find its slope S.</span></button></li>
+            <li><button type="button" class="step"><span class="sn">9</span><span>From the slope calculate the viscosity η.</span></button></li>
+          </ol>
+          <div class="step-view">
+            <div class="step-fig" id="step-fig"></div>
+            <p class="step-cap" id="step-cap"></p>
+          </div>
+        </div>
+        <aside class="lecture-note">
+          <div class="ln-label">From the lecture</div>
+          <p class="ln-quote">"Mark two distant points and measure the distance between them."</p>
+          <ul>
+            <li><strong>Not too close to the surface.</strong> Just after release the ball is still speeding up. Put X a few centimetres below the surface so the ball has already reached its constant terminal velocity when it passes X.</li>
+            <li><strong>Far apart.</strong> Your reaction time when starting and stopping the watch (about 0.1–0.2 s) is roughly the same whatever D is. A long fall makes t larger, so the same reaction error is a smaller percentage of t.</li>
+            <li><strong>Not too close to the bottom.</strong> The base of the cylinder slows the ball in the last few centimetres.</li>
+          </ul>
+        </aside>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ FORMULA ============ -->
+    <section class="view" id="view-formula" data-title="Formula">
+      <div class="sheet">
+        <h1 class="page-h">The formula</h1>
+        <div class="formula-card">
+          <div class="big-eq" aria-label="eta equals two ninths times rho s minus rho L times g times one over S">
+            <span class="v">η</span><span class="op">=</span>
+            <span class="frac"><span>2</span><span>9</span></span>
+            <span class="paren">(ρ<sub>s</sub> − ρ<sub>L</sub>)</span>
+            <span class="v g-hi">g</span>
+            <span class="frac"><span>1</span><span>S</span></span>
+          </div>
+          <dl class="legend">
+            <div><dt>η</dt><dd>coefficient of viscosity of the liquid (poise)</dd></div>
+            <div><dt>ρ<sub>s</sub></dt><dd>density of the sphere (steel: 7.86 g/cm³)</dd></div>
+            <div><dt>ρ<sub>L</sub></dt><dd>density of the liquid (glycerin: 1.26 g/cm³)</dd></div>
+            <div><dt>g</dt><dd>acceleration due to gravity, <strong>980 cm/s²</strong> in CGS</dd></div>
+            <div><dt>S</dt><dd>slope of the v (y) against r² (x) graph, in cm⁻¹ s⁻¹</dd></div>
+          </dl>
+        </div>
+
+        <h2 class="sub-h">Where it comes from</h2>
+        <div class="deriv">
+          <svg id="forces-svg" viewBox="0 0 260 300" role="img" aria-label="Forces on a falling sphere: weight downward, upthrust and viscous drag upward"></svg>
+          <ol class="deriv-steps">
+            <li>Three forces act on the falling sphere: its <strong>weight</strong> ⁴⁄₃πr³ρ<sub>s</sub>g down, the <strong>upthrust</strong> ⁴⁄₃πr³ρ<sub>L</sub>g up, and <strong>Stokes' viscous drag</strong> 6πηrv up.</li>
+            <li>The drag grows with speed. Soon the forces balance and the ball moves at a constant <strong>terminal velocity</strong> v:<span class="eq-line">6πηrv = ⁴⁄₃πr³(ρ<sub>s</sub> − ρ<sub>L</sub>)g</span></li>
+            <li>Solve for v:<span class="eq-line">v = <sup>2</sup>⁄<sub>9</sub> (ρ<sub>s</sub> − ρ<sub>L</sub>) g r² / η</span>So v ∝ r²: a graph of v against r² is a straight line.</li>
+            <li>Its slope is<span class="eq-line">S = <sup>2</sup>⁄<sub>9</sub> (ρ<sub>s</sub> − ρ<sub>L</sub>) g / η</span>Rearranging gives the lab formula for η.</li>
+          </ol>
+        </div>
+
+        <h2 class="sub-h">Units: convert g to CGS first</h2>
+        <div class="g-step">
+          <div class="g-step-tag">Key step</div>
+          <p class="g-eq">g = 9.8 m/s² × 100 cm/m = <strong>980 cm/s²</strong></p>
+          <p>Every other quantity is in centimetres, grams and seconds: densities in g/cm³, the slope in cm⁻¹ s⁻¹, and the answer in poise (g cm⁻¹ s⁻¹), a CGS unit. So g must be in cm/s² too.</p>
+          <p class="g-warn">Using 9.8 instead gives η = 0.054 P: an answer <strong>100 times too small</strong>.</p>
+          <p class="g-units">Unit check: (g/cm³)(cm/s²) ÷ (cm⁻¹ s⁻¹) = g cm⁻¹ s⁻¹ = poise ✓</p>
+        </div>
+
+        <h2 class="sub-h">Try the formula</h2>
+        <div class="explorer">
+          <div class="ex-controls">
+            <div class="ctl"><label for="f-s"><span>Slope S</span> <output id="f-s-o"></output></label><input type="range" id="f-s" min="150" max="450" step="0.01" value="265.42"></div>
+            <div class="ctl"><label for="f-rs"><span>ρ<sub>s</sub> (sphere)</span> <output id="f-rs-o"></output></label><input type="range" id="f-rs" min="2" max="9" step="0.01" value="7.86"></div>
+            <div class="ctl"><label for="f-rl"><span>ρ<sub>L</sub> (liquid)</span> <output id="f-rl-o"></output></label><input type="range" id="f-rl" min="0.8" max="1.5" step="0.01" value="1.26"></div>
+            <div class="ctl"><span class="ctl-label">g used</span>
+              <div class="seg" id="f-g" role="radiogroup" aria-label="Value of g">
+                <button type="button" role="radio" aria-checked="true" data-g="980">980 cm/s²</button>
+                <button type="button" role="radio" aria-checked="false" data-g="9.8">9.8 (not converted)</button>
+              </div>
+            </div>
+          </div>
+          <div class="ex-out">
+            <div class="ex-line" id="f-line"></div>
+            <div class="ex-result" id="f-result"></div>
+            <div class="ex-note" id="f-note"></div>
+          </div>
+        </div>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ OBSERVATION ============ -->
+    <section class="view" id="view-observation" data-title="Observation &amp; graph">
+      <div class="sheet">
+        <h1 class="page-h">Observation &amp; graph</h1>
+        <p class="lede">A real set of graded readings from this lab, used as the worked example.</p>
+        <div class="obs-top">
+          <div class="obs-d">D = <strong>35.5 cm</strong></div>
+          <div class="obs-d">ρ<sub>s</sub> = <strong>7.86 g/cm³</strong></div>
+          <div class="obs-d">ρ<sub>L</sub> = <strong>1.26 g/cm³</strong></div>
+        </div>
+        <div class="table-wrap">
+          <table class="obs">
+            <thead><tr><th>Ball no.</th><th>r<span class="u">cm</span></th><th>r²<span class="u">cm²</span></th><th>t<span class="u">s</span></th><th>v = D/t<span class="u">cm/s</span></th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>0.1</td><td>0.01</td><td>1.29</td><td>27.52</td></tr>
+              <tr><td>2</td><td>0.225</td><td>0.0506</td><td>0.94</td><td>37.77</td></tr>
+              <tr><td>3</td><td>0.325</td><td>0.106</td><td>0.67</td><td>53</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Example for ball 3: v = 35.5 / 0.67 = 52.99 ≈ 53 cm/s. The lab book wrote r² = 0.0501 for ball 2; 0.225² = 0.0506. The slope uses balls 1 and 3, so the result is unchanged.</p>
+
+        <div class="graph-wrap">
+          <svg id="obs-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Graph of v against r squared: three points on a straight line with a slope triangle between ball 1 and ball 3"></svg>
+        </div>
+
+        <h2 class="sub-h">Calculation</h2>
+        <div class="calc">
+          <div class="calc-step"><span class="cs-n">1</span><div><strong>Slope</strong> (y = v, x = r²)
+            <span class="eq-line">S = (y₂ − y₁) / (x₂ − x₁) = (53 − 27.52) / (0.106 − 0.01) = 25.48 / 0.096 = <b>265.42 cm⁻¹ s⁻¹</b></span></div></div>
+          <div class="calc-step hi"><span class="cs-n">2</span><div><strong>Convert g to CGS</strong>
+            <span class="eq-line">g = 9.8 m/s² × 100 = <b>980 cm/s²</b></span></div></div>
+          <div class="calc-step"><span class="cs-n">3</span><div><strong>Substitute</strong>
+            <span class="eq-line">η = <sup>2</sup>⁄<sub>9</sub> × (7.86 − 1.26) × 980 × <sup>1</sup>⁄<sub>265.42</sub></span>
+            <span class="eq-line">= <sup>2</sup>⁄<sub>9</sub> × 6.6 × 980 / 265.42 = 1437.33 / 265.42</span></div></div>
+          <div class="calc-step result"><span class="cs-n">✓</span><div><strong>Result</strong>
+            <span class="eq-line big">Viscosity of the given liquid η = <b>5.415 poise</b></span>
+            <span class="sub">= 0.5415 Pa·s</span></div></div>
+        </div>
+
+        <h2 class="sub-h">Common slips</h2>
+        <div class="slips">
+          <div class="slip"><h3>Slope upside down</h3><p>A first attempt wrote the slope as Δx/Δy, with X and Y swapped, and had to cross it out. v is on the y-axis, so S = Δv / Δr², rise over run.</p></div>
+          <div class="slip"><h3>g left in m/s²</h3><p>Putting in g = 9.8 gives 0.054 P. That answer was also crossed out before switching to 980 cm/s², which gives 5.415 P.</p></div>
+          <div class="slip"><h3>Squaring the diameter</h3><p>The micrometer gives the diameter. Halve it first: r = d/2, then square. Using d² makes every x value 4 times too big.</p></div>
+          <div class="slip"><h3>Reading the slope from table rows only</h3><p>The slope belongs to the best straight line. When the points scatter, choose two points on the drawn line, far apart.</p></div>
+        </div>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ MCQs ============ -->
+    <section class="view" id="view-mcq" data-title="MCQs">
+      <div class="sheet">
+        <h1 class="page-h">Check your understanding</h1>
+        <div class="mcq-bar">
+          <div class="mcq-score" id="mcq-score">0 correct</div>
+          <button type="button" class="btn-quiet" id="mcq-reset">Reset &amp; reshuffle</button>
+        </div>
+        <ol class="mcq-list" id="mcq-list"></ol>
+        <div class="page-end"><button type="button" class="btn-next" data-next>Next →</button></div>
+      </div>
+    </section>
+
+    <!-- ============ PRACTICAL ============ -->
+    <section class="view" id="view-practical" data-title="Practical">
+      <div class="sheet wide">
+        <h1 class="page-h">Practical</h1>
+        <p class="lede">Mark X and Y on the cylinder, drop the spheres, then graph v against r² and find η.</p>
+
+        <div class="prac">
+          <div class="prac-tube-col">
+            <div class="toolbar" role="toolbar" aria-label="Tools">
+              <button type="button" class="tool" id="tool-marker" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 3l6 6-10 10H5v-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 21h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Marker</button>
+              <button type="button" class="tool" id="tool-eraser" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 20l-5-5 10-10 8 8-7 7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 20h12M6 12l7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Eraser</button>
+            </div>
+            <div class="tube-frame" id="tube-frame">
+              <svg id="tube-svg" viewBox="0 0 360 800" role="img" aria-label="Vertical glass cylinder of glycerin with a centimetre scale"></svg>
+            </div>
+            <div class="d-readout" id="d-readout" aria-live="polite"><span class="d-lab">D</span><span class="d-val" id="d-val">—</span></div>
+            <p class="tube-msg" id="tube-msg" aria-live="polite">Pick the marker and draw two lines across the tube.</p>
+          </div>
+
+          <div class="prac-work">
+            <div class="panel">
+              <h2 class="panel-h">Sphere</h2>
+              <div class="seg balls" id="ball-pick" role="radiogroup" aria-label="Sphere">
+                <button type="button" role="radio" aria-checked="true" data-r="0.1">Ball 1</button>
+                <button type="button" role="radio" aria-checked="false" data-r="0.225">Ball 2</button>
+                <button type="button" role="radio" aria-checked="false" data-r="0.325">Ball 3</button>
+                <button type="button" role="radio" aria-checked="false" data-r="custom">Custom</button>
+              </div>
+              <div class="micro">
+                <svg id="micro-svg" viewBox="0 0 420 120" role="img" aria-label="Micrometer reading of the sphere diameter"></svg>
+                <div class="micro-read" id="micro-read"></div>
+                <div class="ctl micro-ctl" id="micro-ctl" hidden>
+                  <label for="micro-d"><span>Diameter</span> <output id="micro-d-o"></output></label>
+                  <input type="range" id="micro-d" min="1" max="7" step="0.01" value="2">
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h2 class="panel-h">Stopwatch</h2>
+              <div class="sw-row">
+                <div class="stopwatch" id="stopwatch"><span id="sw-val">0.00</span><small>s</small></div>
+                <div class="sw-modes">
+                  <div class="seg" id="sw-mode" role="radiogroup" aria-label="Timing mode">
+                    <button type="button" role="radio" aria-checked="true" data-mode="auto">Auto</button>
+                    <button type="button" role="radio" aria-checked="false" data-mode="manual">Manual</button>
+                  </div>
+                  <label class="chk"><input type="checkbox" id="slowmo"> Slow motion ×¼</label>
+                </div>
+              </div>
+              <div class="sw-actions">
+                <button type="button" class="btn-honey" id="btn-drop">Release sphere</button>
+                <button type="button" class="btn-quiet" id="btn-sw" hidden>Start / stop <kbd>Space</kbd></button>
+              </div>
+              <p class="sw-msg" id="sw-msg" aria-live="polite"></p>
+            </div>
+
+            <div class="panel">
+              <h2 class="panel-h">Observation table</h2>
+              <div class="prac-d">D = <strong id="tbl-d">—</strong></div>
+              <div class="table-wrap">
+                <table class="obs small" id="prac-table">
+                  <thead><tr><th>Ball</th><th>r<span class="u">cm</span></th><th>r²<span class="u">cm²</span></th><th>t<span class="u">s</span></th><th>v = D/t<span class="u">cm/s</span></th><th><span class="sr">Remove</span></th></tr></thead>
+                  <tbody id="prac-tbody"><tr class="empty"><td colspan="6">No readings yet.</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prac-lower">
+          <div class="panel">
+            <h2 class="panel-h">v against r²</h2>
+            <div class="seg" id="slope-mode" role="radiogroup" aria-label="Slope method">
+              <button type="button" role="radio" aria-checked="true" data-mode="pick">Pick two points</button>
+              <button type="button" role="radio" aria-checked="false" data-mode="line">Best-fit line</button>
+            </div>
+            <div class="graph-wrap">
+              <svg id="prac-graph" class="graph" viewBox="0 0 760 520" role="img" aria-label="Your graph of v against r squared"></svg>
+            </div>
+            <p class="slope-out" id="slope-out" aria-live="polite">Plot at least two points, then choose two points on the line.</p>
+          </div>
+
+          <div class="panel">
+            <h2 class="panel-h">Calculate η</h2>
+            <div class="calc-form">
+              <div class="cf"><label for="in-s">Slope S <span class="u">cm⁻¹ s⁻¹</span></label><input type="text" inputmode="decimal" id="in-s" autocomplete="off"></div>
+              <div class="cf"><label>ρ<sub>s</sub> − ρ<sub>L</sub> <span class="u">g/cm³</span></label><div class="fixed">7.86 − 1.26</div></div>
+              <div class="cf"><label for="in-g">g <span class="u">cm/s²</span></label><input type="text" inputmode="decimal" id="in-g" autocomplete="off"></div>
+              <div class="cf"><label for="in-eta">η <span class="u">poise</span></label><input type="text" inputmode="decimal" id="in-eta" autocomplete="off"></div>
+            </div>
+            <div class="calc-actions">
+              <button type="button" class="btn-honey" id="btn-check">Check</button>
+              <button type="button" class="btn-quiet" id="btn-guide">Guided calculation</button>
+            </div>
+            <p class="check-msg" id="check-msg" aria-live="polite"></p>
+            <ol class="guide" id="guide" hidden></ol>
+          </div>
+        </div>
+
+        <div class="prac-foot">
+          <button type="button" class="btn-quiet" id="btn-reset">Start over</button>
+        </div>
+
+        <div class="extras" id="extras">
+          <div class="extras-panel" id="extras-panel" role="region" aria-label="Optional extras">
+            <a href="https://grokipedia.com/page/Viscosity" target="_blank" rel="noopener">Grokipedia: Viscosity</a>
+            <a href="https://grokipedia.com/page/Stokes%27_law" target="_blank" rel="noopener">Grokipedia: Stokes' law</a>
+            <a href="https://www.youtube.com/watch?v=mQwlmXtRu5k" target="_blank" rel="noopener">Video: Viscosity of glycerine by the falling-ball method (MeitY OLabs)</a>
+          </div>
+          <button type="button" class="extras-toggle" id="extras-toggle" aria-expanded="false" aria-controls="extras-panel">Optional extras</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

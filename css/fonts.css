@@ -1,0 +1,5 @@
+/* Vendored Google Fonts (latin subset) — Fraunces, Manrope, Caveat. SIL Open Font License. */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/Fraunces-var.woff2) format('woff2');}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/Fraunces-italic.woff2) format('woff2');}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/Manrope-var.woff2) format('woff2');}
+@font-face{font-family:'Caveat';font-style:normal;font-weight:400 700;font-display:swap;src:url(../fonts/Caveat-var.woff2) format('woff2');}
