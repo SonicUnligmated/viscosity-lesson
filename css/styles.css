@@ -30,7 +30,12 @@ body.has-cursor #cursor{display:block}
 .cur-drop path{fill:var(--honey);stroke:var(--amber-2);stroke-width:1}
 .cur-drop ellipse{fill:#fff6dc;opacity:.85}
 #cursor.hot .cur-drop{transform:scale(1.25)}
-#cursor.tool-marker .cur-drop,#cursor.tool-eraser .cur-drop{display:none}
+#cursor.tool-marker .cur-drop,#cursor.tool-eraser .cur-drop,#cursor.tool-tweezers .cur-drop,#cursor.tool-magnet .cur-drop{display:none}
+#cursor.tool-tweezers .cur-marker,#cursor.tool-tweezers .cur-eraser,#cursor.tool-magnet .cur-marker,#cursor.tool-magnet .cur-eraser{display:none!important}
+#cursor.tool-tweezers .cur-tweezers{display:block;left:-6px;top:-40px}
+#cursor.tool-magnet .cur-magnet{display:block;left:-22px;top:-22px}
+.tw-arm{fill:#aab3bb;stroke:#4a545d;stroke-width:1}.mg-n{fill:#c8432f;stroke:#8d2a1c}.mg-s{fill:#3f6fa0;stroke:#284a6e}
+.sphere.pt-hit,.magnet{cursor:grab}
 #cursor.tool-marker .cur-marker{display:block;left:-9px;top:-38px}
 #cursor.tool-eraser .cur-eraser{display:block;left:-16px;top:-34px}
 .mk-cap{fill:#1f2a33}.mk-body{fill:#3a4752}.mk-collar{fill:#c9ced3}.mk-tip{fill:#1f2a33}
@@ -248,7 +253,7 @@ table.obs{width:100%;border-collapse:separate;border-spacing:0;background:#fff;b
 .mcq-fb.explain{background:var(--good-pale);color:#2d5a36}
 
 /* ---------- practical ---------- */
-.prac{display:grid;grid-template-columns:400px 1fr;gap:30px;align-items:start;margin-top:8px}
+.prac{display:grid;grid-template-columns:470px 1fr;gap:30px;align-items:start;margin-top:8px}
 .prac-tube-col{display:flex;flex-direction:column;gap:12px;align-items:stretch}
 .toolbar{display:flex;gap:10px}
 .tool{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--paper);border:1.5px solid var(--line-2);border-radius:12px;padding:10px 12px;font:700 15.5px/1 var(--f-body);color:var(--ink-2)}
@@ -312,7 +317,7 @@ table.obs{width:100%;border-collapse:separate;border-spacing:0;background:#fff;b
 
 /* ---------- responsive ---------- */
 @media (max-width:1180px){
-  .prac{grid-template-columns:340px 1fr}
+  .prac{grid-template-columns:400px 1fr}
 }
 @media (max-width:980px){
   .app{grid-template-columns:minmax(0,1fr)}
@@ -333,7 +338,7 @@ table.obs{width:100%;border-collapse:separate;border-spacing:0;background:#fff;b
   .step-view{position:static}
   .deriv svg{max-width:240px;margin:0 auto}
   .big-eq{font-size:34px;justify-content:center}
-  .prac-tube-col{max-width:420px;margin:0 auto;width:100%}
+  .prac-tube-col{max-width:480px;margin:0 auto;width:100%}
 }
 @media (max-width:640px){
   body{font-size:17px}

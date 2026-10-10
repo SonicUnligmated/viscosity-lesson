@@ -175,8 +175,7 @@
     window.addEventListener('blur', () => cur.classList.add('hidden'));
   }
   function setCursorTool(tool) {
-    cur.classList.toggle('tool-marker', tool === 'marker');
-    cur.classList.toggle('tool-eraser', tool === 'eraser');
+    ['marker', 'eraser', 'tweezers', 'magnet'].forEach(t => cur.classList.toggle('tool-' + t, tool === t));
   }
 
   /* =====================================================================
@@ -804,10 +803,10 @@
       if (long && (mm / 10) % 5 === 0) txt(gR, RX + 24, y + 5, String(mm / 10), { 'font-size': 16, fill: '#4a3d22', 'font-weight': 700, 'font-family': 'Manrope, sans-serif' });
     }
     txt(gR, RX + 32, yOf(55.6) - 6, 'cm', { 'font-size': 14, fill: '#7a6a48', 'text-anchor': 'middle' });
-    const gGuide = el('g', null, svg), gMarks = el('g', null, svg), gBall = el('g', null, svg), gLabels = el('g', null, svg);
+    const gGuide = el('g', null, svg), gMarks = el('g', null, svg), gLabels = el('g', null, svg);
     const gD = el('g', null, svg);
     const hit = el('rect', { x: TX0 - 14, y: yOf(TOPCM) - 6, width: TX1 - TX0 + 28, height: YB - yOf(TOPCM) + 6, fill: 'transparent', class: 'tube-hit' }, svg);
-    const ballEl = el('circle', { cx: (TX0 + TX1) / 2, cy: yOf(SURFACE + 2), r: 4, fill: 'url(#pt-steel)', opacity: 0 }, gBall);
+    const gDish = el('g', null, svg), gSph = el('g', null, svg), gMag = el('g', null, svg);
     const ghost = el('path', { d: '', stroke: '#26313b', 'stroke-width': 3, fill: 'none', 'stroke-linecap': 'round', opacity: .9 }, gMarks);
 
     /* ---- marks ---- */
@@ -871,7 +870,7 @@
     }
     $('tool-marker').addEventListener('click', () => setTool('marker'));
     $('tool-eraser').addEventListener('click', () => setTool('eraser'));
-    onLeave.practical = () => { setCursorTool(null); stopRun(true); };
+    onLeave.practical = () => { setCursorTool(null); abortRun(); };
     onEnter.practical = () => setCursorTool(st.tool);
 
     let drag = null;
@@ -971,41 +970,120 @@
       const main = Math.floor(dmm * 2 + 1e-9) / 2, th = Math.round((dmm - main) * 100);
       $('micro-read').innerHTML = `Main scale ${main.toFixed(1)} mm + thimble ${th} × 0.01 mm = <b>d = ${dmm.toFixed(2)} mm</b> → r = ${(dmm / 20).toFixed(dmm * 100 % 2 ? 4 : 3).replace(/0+$/, '').replace(/\.$/, '')} cm`;
     }
-    const ballPick = radioGroup('ball-pick', b => {
-      if (st.run) stopRun(true);
+    /* ---- spheres in numbered dishes, tweezers drag-and-drop, bar magnet ---- */
+    const rvOf = r => 3 + r * PX * 2.8;
+    const DISH = { '1': [-100, 140], '2': [-52, 140], '3': [-4, 140], 'C': [-52, 236] };
+    const dishEls = {};
+    txt(gDish, -52, 86, 'steel spheres', { 'font-size': 22, fill: '#5d6872', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 600 });
+    Object.keys(DISH).forEach(k => {
+      const [cx, cy] = DISH[k];
+      const g = el('g', { class: 'dish' + (k === 'C' ? ' dish-c' : '') }, gDish);
+      el('ellipse', { cx, cy: cy + 11, rx: 24, ry: 4.5, fill: 'rgba(80,60,20,.12)' }, g);
+      el('path', { d: `M${cx - 22} ${cy} Q${cx} ${cy + 19} ${cx + 22} ${cy}`, fill: '#e9edf0', stroke: '#9fa9b0', 'stroke-width': 1.5 }, g);
+      const rim = el('ellipse', { cx, cy, rx: 22, ry: 5, fill: '#f6f8f9', stroke: '#9fa9b0', 'stroke-width': 1.5 }, g);
+      txt(g, cx, cy + 40, k === 'C' ? 'custom' : k, { 'font-size': k === 'C' ? 20 : 22, fill: '#4a4237', 'text-anchor': 'middle', 'font-family': k === 'C' ? 'Caveat, cursive' : 'Manrope, sans-serif', 'font-weight': 700 });
+      dishEls[k] = { g, rim };
+    });
+    // drop zone above the glycerin
+    const dropZone = el('g', { opacity: 0, 'pointer-events': 'none' }, gDish);
+    el('rect', { x: TX0 + 2, y: yOf(TOPCM) - 40, width: TX1 - TX0 - 4, height: yOf(SURFACE) - yOf(TOPCM) + 44, rx: 8, fill: 'rgba(233,178,74,.14)', stroke: '#d4951f', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, dropZone);
+    txt(dropZone, (TX0 + TX1) / 2, yOf(TOPCM) - 12, 'release here', { 'font-size': 20, fill: '#9b5a08', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 700 });
+
+    const spheres = ['1', '2', '3', 'C'].map(k => {
+      const sp = { key: k, r: k === 'C' ? +microRange.value / 20 : LAB.balls[+k - 1].r, state: 'dish', x: 0, y: 0, anim: null };
+      sp.el = el('circle', { fill: 'url(#pt-steel)', stroke: '#3d464e', 'stroke-width': .6, class: 'sphere' }, gSph);
+      sp.el.addEventListener('pointerdown', e => grab(sp, e));
+      return sp;
+    });
+    const spByKey = k => spheres.find(s => s.key === String(k));
+    let customShown = false;
+    function toDish(sp) { const [cx, cy] = DISH[sp.key]; sp.x = cx; sp.y = cy + 3 - rvOf(sp.r); }
+    function renderSphere(sp) {
+      sp.el.setAttribute('cx', sp.x.toFixed(2)); sp.el.setAttribute('cy', sp.y.toFixed(2)); sp.el.setAttribute('r', rvOf(sp.r).toFixed(2));
+      const hidden = sp.key === 'C' && sp.state === 'dish' && !customShown;
+      sp.el.style.display = hidden ? 'none' : '';
+      sp.el.style.pointerEvents = sp.state === 'dish' ? 'auto' : 'none';
+      sp.el.classList.toggle('pt-hit', sp.state === 'dish');
+    }
+    function renderDishes() {
+      dishEls.C.g.style.display = customShown || spByKey('C').state !== 'dish' ? '' : 'none';
+      Object.keys(dishEls).forEach(k => {
+        const sel = String(st.ball) === k;
+        dishEls[k].rim.setAttribute('stroke', sel ? '#d4951f' : '#9fa9b0');
+        dishEls[k].rim.setAttribute('stroke-width', sel ? 2.6 : 1.5);
+      });
+    }
+    function sphMsg(s) { $('sw-msg').textContent = s; }
+    const dishName = k => k === 'C' ? 'the custom dish' : 'dish ' + k;
+
+    function applyPick(b) {
       const custom = b.dataset.r === 'custom';
       $('micro-ctl').hidden = !custom;
-      if (custom) { st.ball = 'C'; st.r = +microRange.value / 20; }
+      customShown = custom || spByKey('C').state !== 'dish';
+      if (custom) { st.ball = 'C'; st.r = +microRange.value / 20; const c = spByKey('C'); if (c.state === 'dish') { c.r = st.r; toDish(c); } }
       else { st.ball = ballPick.btns.indexOf(b) + 1; st.r = +b.dataset.r; microRange.value = (st.r * 20).toFixed(2); }
       $('micro-d-o').textContent = (st.r * 20).toFixed(2) + ' mm';
-      drawMicro(st.r * 20); setBallSize();
+      drawMicro(st.r * 20); spheres.forEach(renderSphere); renderDishes();
+    }
+    const ballPick = radioGroup('ball-pick', applyPick);
+    function selectKey(k) { const b = ballPick.btns[k === 'C' ? 3 : +k - 1]; ballPick.set(b); applyPick(b); }
+    microRange.addEventListener('input', () => {
+      st.r = +microRange.value / 20; $('micro-d-o').textContent = (+microRange.value).toFixed(2) + ' mm'; drawMicro(+microRange.value);
+      const c = spByKey('C');
+      if (c.state === 'dish') { c.r = st.r; toDish(c); renderSphere(c); } else sphMsg('The custom sphere is in the tube. Lift it out with the magnet before measuring a new size.');
     });
-    microRange.addEventListener('input', () => { st.r = +microRange.value / 20; $('micro-d-o').textContent = (+microRange.value).toFixed(2) + ' mm'; drawMicro(+microRange.value); setBallSize(); });
-    function setBallSize() { ballEl.setAttribute('r', Math.max(3.5, st.r * PX * 1.6).toFixed(2)); }
 
-    /* ---- stopwatch + drop ---- */
+    /* tweezers: drag a sphere from its dish and release it above the surface */
+    const inDropZone = p => p.x > TX0 - 6 && p.x < TX1 + 6 && p.y > yOf(TOPCM) - 60 && p.y < yOf(SURFACE) + 8;
+    function dishAt(p) { return Object.keys(DISH).find(k => (k !== 'C' || customShown) && Math.hypot(p.x - DISH[k][0], p.y - DISH[k][1]) < 28); }
+    function grab(sp, e) {
+      if (sp.state !== 'dish') return;
+      e.preventDefault(); e.stopPropagation();
+      selectKey(sp.key);
+      sp.state = 'held'; renderSphere(sp);
+      setCursorTool('tweezers'); dropZone.setAttribute('opacity', 1);
+      const mv = ev => { const p = svgPoint(svg, ev); sp.x = clamp(p.x, -120, 355); sp.y = clamp(p.y, 10, 790); renderSphere(sp); };
+      const up = ev => {
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        dropZone.setAttribute('opacity', 0); setCursorTool(st.tool);
+        const p = svgPoint(svg, ev);
+        if (inDropZone(p) && tryDrop(sp, p.x)) return;
+        const d = dishAt(p);
+        if (d && d !== sp.key) sphMsg(`This ball belongs in ${dishName(sp.key)}.`);
+        else if (!inDropZone(p) && !d) sphMsg('Release the sphere just above the glycerin at the top of the tube.');
+        startReturn(sp);
+      };
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    }
+
+    /* timed fall */
     const swVal = $('sw-val'), swBox = $('stopwatch');
     function swShow(t, running) { swVal.textContent = t.toFixed(2); swBox.classList.toggle('running', !!running); }
-    radioGroup('sw-mode', b => { st.mode = b.dataset.mode; $('btn-sw').hidden = st.mode !== 'manual'; $('sw-msg').textContent = st.mode === 'manual' ? 'Press Start / stop (or Space) as the sphere passes X, and again at Y.' : 'The watch starts at X and stops at Y by itself.'; });
-    function stopRun(hide) {
-      if (st.run) { cancelAnimationFrame(st.run.raf); st.run = null; }
-      if (hide) ballEl.setAttribute('opacity', 0);
-      $('btn-drop').disabled = false;
+    radioGroup('sw-mode', b => { st.mode = b.dataset.mode; $('btn-sw').hidden = st.mode !== 'manual'; sphMsg(st.mode === 'manual' ? 'Press Start / stop (or Space) as the sphere passes X, and again at Y.' : 'The watch starts at X and stops at Y by itself.'); });
+    function land(sp) {
+      const rv = rvOf(sp.r), lo = TX0 + rv + 3, hi = TX1 - rv - 3;
+      const others = spheres.filter(o => o !== sp && o.state === 'bottom');
+      const free = x => others.every(o => Math.abs(o.x - x) >= rv + rvOf(o.r) + 1);
+      let x = clamp(sp.x, lo, hi);
+      for (let k = 0; k < 60 && !free(x); k++) { const c = clamp(sp.x + (k % 2 ? 1 : -1) * Math.ceil((k + 1) / 2) * 3, lo, hi); if (free(c)) { x = c; break; } }
+      sp.x = x; sp.y = YB - rv - 1; sp.state = 'bottom'; renderSphere(sp);
     }
-    $('btn-drop').addEventListener('click', () => {
+    function tryDrop(sp, x) {
       const xy = getXY();
-      if (!xy) { $('sw-msg').textContent = 'Draw two marks (X and Y) on the tube first.'; return; }
-      if (st.run) return;
-      const vT = vModel(st.r);
-      const sX = SURFACE - xy.X.cm, sY = SURFACE - xy.Y.cm, sBot = SURFACE - Math.max(0.1, st.r);
+      if (!xy) { sphMsg('Draw two marks (X and Y) on the tube first.'); return false; }
+      if (st.run) { sphMsg('Wait until the falling sphere reaches the bottom.'); return false; }
+      const rv = rvOf(sp.r);
+      sp.state = 'falling'; sp.x = clamp(x, TX0 + rv + 4, TX1 - rv - 4); sp.y = yOf(SURFACE); renderSphere(sp);
+      const vT = vModel(sp.r);
+      const sX = SURFACE - xy.X.cm, sY = SURFACE - xy.Y.cm, sBot = SURFACE - (rv + 1) / PX;
       const slow = $('slowmo').checked ? 0.25 : 1;
-      const run = { s: 0, v: 0, t: 0, tX: null, tY: null, last: performance.now(), xy, vT, slow, r: st.r, ball: st.ball, done: false, bottomAt: null };
+      const run = { sp, s: 0, v: 0, t: 0, tX: null, tY: null, last: performance.now(), xy, vT, slow, r: sp.r, ball: sp.key === 'C' ? 'C' : +sp.key, done: false, bottomAt: null };
       st.run = run; $('btn-drop').disabled = true;
       st.swManual = { on: false, t0: 0, val: 0, started: false, stopped: false };
       swShow(0, false);
-      $('sw-msg').textContent = st.mode === 'auto' ? 'Sphere released…' : 'Sphere released. Time it from X to Y.';
-      ballEl.setAttribute('opacity', 1); ballEl.setAttribute('cy', yOf(SURFACE));
+      sphMsg(st.mode === 'auto' ? 'Sphere released…' : 'Sphere released. Time it from X to Y.');
       function step(now) {
+        if (st.run !== run) return;
         const dtReal = Math.min(0.05, (now - run.last) / 1000); run.last = now;
         let dt = dtReal * slow;
         const sub = 1 / 2000;
@@ -1019,7 +1097,7 @@
           if (run.tY == null && s0 < sY && run.s >= sY) run.tY = run.t - h * (run.s - sY) / (run.s - s0);
           if (run.s >= sBot) { run.s = sBot; run.done = true; }
         }
-        ballEl.setAttribute('cy', yOf(SURFACE - run.s).toFixed(2));
+        sp.y = yOf(SURFACE - run.s); renderSphere(sp);
         if (st.mode === 'auto') {
           if (run.tX != null && run.tY == null) swShow(run.t - run.tX, true);
           if (run.tY != null && !run.recorded) { run.recorded = true; const t = Math.round((run.tY - run.tX) * 100) / 100; swShow(t, false); record(run, t); }
@@ -1027,20 +1105,110 @@
           const m = st.swManual; if (m.on) { m.val = run.t - m.t0; swShow(m.val, true); }
         }
         if (run.done) {
-          if (run.bottomAt == null) run.bottomAt = now;
-          if (st.mode === 'manual' && st.swManual.on && now - run.bottomAt < 1500) { st.run.raf = requestAnimationFrame(step); return; }
+          if (run.bottomAt == null) { run.bottomAt = now; land(sp); }
+          if (st.mode === 'manual' && st.swManual.on && now - run.bottomAt < 1500) { run.raf = requestAnimationFrame(step); return; }
           if (st.mode === 'manual') {
             const m = st.swManual;
-            if (m.on) { m.on = false; swShow(m.val, false); $('sw-msg').textContent = 'The watch was still running after the sphere reached the bottom. Release it again.'; }
-            else if (!m.stopped) $('sw-msg').textContent = 'No time was taken. Release the sphere again and press Start / stop at X and at Y.';
+            if (m.on) { m.on = false; swShow(m.val, false); sphMsg('The watch was still running after the sphere reached the bottom. Lift it out with the magnet and drop it again.'); }
+            else if (!m.stopped) sphMsg('No time was taken. Lift the sphere out with the magnet and drop it again, pressing Start / stop at X and at Y.');
           }
-          setTimeout(() => { if (st.run === run) { stopRun(false); } }, 400);
+          st.run = null; $('btn-drop').disabled = false;
           return;
         }
-        st.run.raf = requestAnimationFrame(step);
+        run.raf = requestAnimationFrame(step);
       }
       run.raf = requestAnimationFrame(step);
+      return true;
+    }
+    function abortRun() {
+      if (!st.run) return;
+      cancelAnimationFrame(st.run.raf); const sp = st.run.sp; st.run = null;
+      land(sp); $('btn-drop').disabled = false;
+    }
+    $('btn-drop').addEventListener('click', () => {
+      const sp = spByKey(st.ball);
+      if (sp.state !== 'dish') { sphMsg('This sphere is in the tube. Lift it out with the magnet first.'); return; }
+      if (tryDrop(sp, (TX0 + TX1) / 2)) renderDishes();
     });
+
+    /* bar magnet: drag it along the outside of the glass to lift a sphere */
+    const MX = TX0 - 12, PARK = [-52, 630], MH = 38;
+    const mag = { x: PARK[0], y: PARK[1], onTrack: false, drag: false, held: null };
+    const gMagEl = el('g', { class: 'magnet pt-hit', style: 'touch-action:none' }, gMag);
+    el('rect', { x: -14, y: -MH - 6, width: 28, height: MH * 2 + 12, fill: 'transparent' }, gMagEl);
+    el('rect', { x: -9, y: -MH, width: 18, height: MH, rx: 3, fill: '#c8432f', stroke: '#8d2a1c', 'stroke-width': 1.2 }, gMagEl);
+    el('rect', { x: -9, y: 0, width: 18, height: MH, rx: 3, fill: '#3f6fa0', stroke: '#284a6e', 'stroke-width': 1.2 }, gMagEl);
+    txt(gMagEl, 0, -MH + 18, 'N', { 'font-size': 14, fill: '#fff', 'text-anchor': 'middle', 'font-weight': 700, 'font-family': 'Manrope, sans-serif' });
+    txt(gMagEl, 0, MH - 8, 'S', { 'font-size': 14, fill: '#fff', 'text-anchor': 'middle', 'font-weight': 700, 'font-family': 'Manrope, sans-serif' });
+    const magLabel = txt(gMag, PARK[0], PARK[1] + MH + 30, 'magnet', { 'font-size': 22, fill: '#5d6872', 'text-anchor': 'middle', 'font-family': 'Caveat, cursive', 'font-weight': 600 });
+    function renderMag() { gMagEl.setAttribute('transform', `translate(${mag.x.toFixed(1)} ${mag.y.toFixed(1)})`); magLabel.style.display = mag.x === PARK[0] && mag.y === PARK[1] ? '' : 'none'; }
+    gMagEl.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      const p0 = svgPoint(svg, e), off = mag.y - p0.y;
+      mag.drag = true; setCursorTool('magnet'); kick();
+      const mv = ev => {
+        const p = svgPoint(svg, ev);
+        if (p.x > 40 && p.x < TX1) { mag.onTrack = true; mag.x = MX; mag.y = clamp(p.y + off, MH + 4, YB - MH + 4); }
+        else { mag.onTrack = false; mag.x = clamp(p.x, -110, 40); mag.y = clamp(p.y + off, MH + 4, 790 - MH); }
+        renderMag(); kick();
+      };
+      const up = () => {
+        window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+        mag.drag = false; setCursorTool(st.tool);
+        if (!mag.onTrack) { mag.x = PARK[0]; mag.y = PARK[1]; }
+        renderMag(); kick();
+      };
+      window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    });
+    function parkMagnet() { mag.x = PARK[0]; mag.y = PARK[1]; mag.onTrack = false; mag.held = null; renderMag(); }
+
+    function startReturn(sp) {
+      const [dx, dy] = DISH[sp.key];
+      sp.state = 'returning';
+      sp.anim = { t: 0, x0: sp.x, y0: sp.y, x1: dx, y1: dy + 3 - rvOf(sp.r), cx: (sp.x + dx) / 2, cy: Math.min(sp.y, dy) - 70 };
+      renderSphere(sp); kick();
+    }
+    let ticking = false, lastT = 0;
+    function kick() { if (!ticking) { ticking = true; lastT = performance.now(); requestAnimationFrame(tick); } }
+    function tick(now) {
+      const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+      // the magnet grips the nearest sphere resting (or sinking) in the tube
+      if (mag.onTrack && !mag.held) {
+        let best = null, bd = 95;
+        spheres.forEach(sp => { if (sp.state === 'bottom' || sp.state === 'sinking') { const d = Math.hypot(sp.x - MX, sp.y - mag.y); if (d < bd) { bd = d; best = sp; } } });
+        if (best) { mag.held = best; best.state = 'lifting'; sphMsg('The magnet has caught the sphere. Slide it slowly up the glass.'); }
+      }
+      if (mag.held && !mag.onTrack) { mag.held.state = 'sinking'; mag.held = null; }
+      spheres.forEach(sp => {
+        if (sp.state === 'lifting') {
+          const rv = rvOf(sp.r), inLiquid = sp.y > yOf(SURFACE) - rv;
+          const maxV = inLiquid ? 115 : 450;                     // px/s: viscous drag keeps it slow in glycerin
+          const vy = clamp((mag.y - sp.y) * 2.2, -maxV, maxV);
+          sp.y = Math.min(YB - rv - 1, sp.y + vy * dt);
+          sp.x += (TX0 + rv + 3 - sp.x) * Math.min(1, dt * 2.5);
+          if (sp.y < yOf(SURFACE) - rv - 2) { mag.held = null; startReturn(sp); sphMsg(`Sphere lifted out and returned to ${dishName(sp.key)}.`); }
+          renderSphere(sp);
+        } else if (sp.state === 'sinking') {
+          sp.y += vModel(sp.r) * PX * dt;
+          if (sp.y >= YB - rvOf(sp.r) - 1) land(sp); else renderSphere(sp);
+        } else if (sp.state === 'returning') {
+          const a = sp.anim; a.t = Math.min(1, a.t + dt / 0.6);
+          const u = a.t, w = 1 - u;
+          sp.x = w * w * a.x0 + 2 * w * u * a.cx + u * u * a.x1; sp.y = w * w * a.y0 + 2 * w * u * a.cy + u * u * a.y1;
+          if (u >= 1) { sp.state = 'dish'; sp.anim = null; toDish(sp); if (sp.key === 'C') { sp.r = +microRange.value / 20; toDish(sp); customShown = st.ball === 'C'; renderDishes(); } }
+          renderSphere(sp);
+        }
+      });
+      const busy = mag.drag || mag.held || spheres.some(sp => sp.state === 'lifting' || sp.state === 'sinking' || sp.state === 'returning');
+      if (busy) requestAnimationFrame(tick); else ticking = false;
+    }
+    function resetSpheres() {
+      if (st.run) { cancelAnimationFrame(st.run.raf); st.run = null; $('btn-drop').disabled = false; }
+      parkMagnet();
+      spheres.forEach(sp => { sp.state = 'dish'; sp.anim = null; if (sp.key === 'C') sp.r = +microRange.value / 20; toDish(sp); });
+      customShown = st.ball === 'C';
+      spheres.forEach(renderSphere); renderDishes();
+    }
     function manualPress() {
       const run = st.run, m = st.swManual;
       if (st.mode !== 'manual') return;
@@ -1194,7 +1362,7 @@
 
     /* ---- start over ---- */
     $('btn-reset').addEventListener('click', () => {
-      stopRun(true); st.marks = []; renderMarks(); clearRows();
+      resetSpheres(); st.marks = []; renderMarks(); clearRows();
       swShow(0, false); $('sw-msg').textContent = '';
       ['in-s', 'in-g', 'in-eta'].forEach(i => { $(i).value = ''; }); st.autoFilledS = false;
       msg.className = 'check-msg'; msg.textContent = '';
@@ -1202,9 +1370,9 @@
       st.line = null; st.pick = [];
     });
 
-    drawMicro(2); $('micro-d-o').textContent = '2.00 mm'; setBallSize();
+    drawMicro(2); $('micro-d-o').textContent = '2.00 mm'; resetSpheres();
     renderMarks(); renderGraph();
-    window.__prac = { st, getXY, vModel, renderMarks, PX, yOf, TX0, TX1, SURFACE };
+    window.__prac = { st, getXY, vModel, renderMarks, PX, yOf, TX0, TX1, SURFACE, YB, spheres, mag, DISH, MX, PARK };
   })();
 
   /* =====================================================================

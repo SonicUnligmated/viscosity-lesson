@@ -17,6 +17,8 @@
 <div id="cursor" aria-hidden="true">
   <svg class="cur-drop" viewBox="0 0 28 34" width="28" height="34"><path d="M5 3 C5 3 1 11 1 14.5 A4.2 4.2 0 0 0 9.4 14.5 C9.4 11 5 3 5 3Z" transform="translate(0 0)"/><ellipse cx="3.7" cy="14" rx="1" ry="1.6"/></svg>
   <svg class="cur-marker" viewBox="0 0 44 44" width="44" height="44"><g transform="rotate(-38 22 22)"><path d="M20 6h6v6h-6z" class="mk-cap"/><path d="M19 12h8v20h-8z" class="mk-body"/><path d="M19 30h8l-2 6h-4z" class="mk-collar"/><path d="M21.5 36h3l-1.5 5z" class="mk-tip"/></g></svg>
+  <svg class="cur-tweezers" viewBox="0 0 44 44" width="44" height="44"><path d="M4 40 L20 6 Q22 2 25 5 L9 41 Z" class="tw-arm"/><path d="M4 40 L31 12 Q34 9 36 12 L9 41 Z" class="tw-arm"/></svg>
+  <svg class="cur-magnet" viewBox="0 0 44 44" width="44" height="44"><g transform="rotate(20 22 22)"><rect x="15" y="4" width="14" height="18" rx="2" class="mg-n"/><rect x="15" y="22" width="14" height="18" rx="2" class="mg-s"/></g></svg>
   <svg class="cur-eraser" viewBox="0 0 44 44" width="44" height="44"><g transform="rotate(-30 22 22)"><rect x="15" y="8" width="14" height="22" rx="3" class="er-body"/><rect x="15" y="26" width="14" height="10" rx="2" class="er-felt"/></g></svg>
 </div>
 
@@ -320,7 +322,7 @@
     <section class="view" id="view-practical" data-title="Practical">
       <div class="sheet wide">
         <h1 class="page-h">Practical</h1>
-        <p class="lede">Mark X and Y on the cylinder, drop the spheres, then graph v against r² and find η.</p>
+        <p class="lede">Mark X and Y on the cylinder. Drag a sphere from its dish and release it above the glycerin; lift it back out with the magnet. Then graph v against r² and find η.</p>
 
         <div class="prac">
           <div class="prac-tube-col">
@@ -329,7 +331,7 @@
               <button type="button" class="tool" id="tool-eraser" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 20l-5-5 10-10 8 8-7 7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 20h12M6 12l7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Eraser</button>
             </div>
             <div class="tube-frame" id="tube-frame">
-              <svg id="tube-svg" viewBox="0 0 360 800" role="img" aria-label="Vertical glass cylinder of glycerin with a centimetre scale"></svg>
+              <svg id="tube-svg" viewBox="-125 0 485 800" role="img" aria-label="Vertical glass cylinder of glycerin with a centimetre scale, three steel spheres in numbered dishes and a bar magnet"></svg>
             </div>
             <div class="d-readout" id="d-readout" aria-live="polite"><span class="d-lab">D</span><span class="d-val" id="d-val">—</span></div>
             <p class="tube-msg" id="tube-msg" aria-live="polite">Pick the marker and draw two lines across the tube.</p>
